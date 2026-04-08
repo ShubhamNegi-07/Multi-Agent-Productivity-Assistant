@@ -2,7 +2,7 @@
 
 A modular, tool-enabled multi-agent AI application built with **LangChain**, **Google Gemini**, **OpenWeatherMap API**, and **Streamlit**.
 
-# Try it out: https://multi-agent-assistant-2mszfia7nwedzgbfdjkn4g.streamlit.app/
+# Try it out: https://multi-agent-appuctivity-assistant-jopdwch8jkayamkqsl2gqn.streamlit.app/
 ---
 
 ## 📌 Project Overview
