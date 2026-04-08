@@ -1,0 +1,57 @@
+# 🧠 Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 🐍 Virtual environments
+venv/
+.env/
+env/
+ENV/
+
+# 🔐 Environment variables (IMPORTANT)
+.venv/
+venv/
+env/
+
+# 📦 Installed packages
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# 🧪 Testing
+.coverage
+.pytest_cache/
+
+# 📓 Jupyter notebooks
+.ipynb_checkpoints/
+
+# 🧾 Logs
+*.log
+
+# 💻 OS files
+.DS_Store
+Thumbs.db
+
+# 🧰 IDE / Editor files
+.vscode/
+.idea/
+
+# 🚫 Temporary files
+*.tmp
+*.bak
+
+# 📁 Data files (optional — uncomment if needed)
+# data/
+# *.csv
+# *.xlsx
+
+# 🔥 API keys / secrets (double protection)
+*.env
+
+# Sensitive data
+.env
+
+# Streamlit
+.streamlit/secrets.toml
