@@ -23,7 +23,7 @@ def get_current_weather(city: str) -> str:
     Returns temperature, feels-like, humidity, wind speed, and condition.
 
     Args:
-        city: Name of the city (e.g., 'Hyderabad', 'Chennai').
+        city: Name of the city (e.g., 'Dehradun', 'Mumbai').
     """
     if not WEATHER_API_KEY:
         return "❌ OPENWEATHER_API_KEY is missing in .env file."
