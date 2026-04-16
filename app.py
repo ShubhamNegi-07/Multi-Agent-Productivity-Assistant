@@ -140,9 +140,9 @@ AGENTS = {
         "color": "#ffb74d",
         "description": "Calculate EMI, interest, and split your monthly budget smartly.",
         "examples": [
-            "Calculate EMI for 5 lakhs at 9% for 5 years.",
-            "Find compound interest for 10000 at 8% for 3 years.",
-            "Split my 60000 salary using the 50/30/20 rule.",
+            "Calculate the EMI for a loan of ₹5 lakhs at 9% interest for 5 years.",
+            "What is the compound interest on ₹10,000 at 8% for 3 years?",
+            "How should I split a ₹60,000 salary using the 50/30/20 rule?",
         ],
     },
     "📋  Productivity Agent": {
