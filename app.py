@@ -120,8 +120,8 @@ AGENTS = {
         "color": "#4fc3f7",
         "description": "Get real-time weather, temperature, humidity & forecasts.",
         "examples": [
-            "What is the weather in Hyderabad?",
-            "Is it humid in Mumbai today?",
+            "What is the weather in Dehradun?",
+            "Is it humid in Dehradun today?",
             "Give me a 3-day forecast for Delhi.",
         ],
     },
@@ -130,9 +130,9 @@ AGENTS = {
         "color": "#81c784",
         "description": "Plan trips, estimate budgets, get packing checklists & travel tips.",
         "examples": [
-            "Plan a 3-day trip to Goa for 2 people.",
+            "Plan a 10-day trip to Kedarnath for 2 people.",
             "Suggest transport for 650 km travel.",
-            "Give me a travel checklist for Ladakh.",
+            "Give me a travel checklist for USA.",
         ],
     },
     "💰  Finance Agent": {
