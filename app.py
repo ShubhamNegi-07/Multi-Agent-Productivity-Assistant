@@ -120,9 +120,9 @@ AGENTS = {
         "color": "#4fc3f7",
         "description": "Get real-time weather, temperature, humidity & forecasts.",
         "examples": [
-            "What is the weather in Dehradun?",
-            "Is it humid in Dehradun today?",
-            "Give me a 3-day forecast for Delhi.",
+            "What is the current weather in Dehradun?",
+            "How humid is it in Dehradun today?",
+            "Provide a 3-day weather forecast for Delhi.",
         ],
     },
     "✈️  Travel Agent": {
