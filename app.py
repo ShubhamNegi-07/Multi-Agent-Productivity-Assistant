@@ -131,8 +131,8 @@ AGENTS = {
         "description": "Plan trips, estimate budgets, get packing checklists & travel tips.",
         "examples": [
             "Plan a 10-day trip to Kedarnath for 2 people.",
-            "Suggest transport for 650 km travel.",
-            "Give me a travel checklist for USA.",
+            "What is the best transport option for a 650 km journey?",
+            "Provide a complete travel checklist for a USA trip."
         ],
     },
     "💰  Finance Agent": {
