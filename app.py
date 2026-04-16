@@ -150,9 +150,9 @@ AGENTS = {
         "color": "#ce93d8",
         "description": "Create to-do lists, meeting agendas, emails & study plans.",
         "examples": [
-            "Draft a sick leave email.",
-            "Create a meeting agenda for Project Review.",
-            "Make a study plan for Python for 2 hours a day.",
+            "Draft a professional sick leave email to my manager.",
+            "Create a structured meeting agenda for a Project Review.",
+            "Make a 30-day study plan for Python with 2 hours daily.",
         ],
     },
 }
