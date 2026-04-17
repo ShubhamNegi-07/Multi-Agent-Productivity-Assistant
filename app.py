@@ -142,7 +142,7 @@ AGENTS = {
         "examples": [
             "Break down my ₹25,000 monthly income into rent, savings, and expenses realistically.",
             "Compare renting vs buying a house over 5 years with my current salary.",
-            "How should I split a ₹60,000 salary using the 50/30/20 rule?",
+            "How can I save ₹1 lakh in 12 months with my current spending habits?",
         ],
     },
     "📋  Productivity Agent": {
