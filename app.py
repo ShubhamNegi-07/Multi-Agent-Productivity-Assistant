@@ -131,7 +131,7 @@ AGENTS = {
         "description": "Plan trips, estimate budgets, get packing checklists & travel tips.",
         "examples": [
             "Create a detailed itinerary for Kedarnath with time, cost, and difficulty level.",
-            "What is the best transport option for a 650 km journey?",
+            "What’s the cheapest way to travel 650 km with comfort and time balance?",
             "What are common travel mistakes I should avoid for my destination?"
         ],
     },
