@@ -118,9 +118,9 @@ AGENTS = {
     "🌤️  Weather Agent": {
         "key": "weather",
         "color": "#4fc3f7",
-        "description": "Get real-time weather, temperature, humidity & forecasts.",
+        "description": "Get real-time weather insights, forecasts, and practical daily recommendations.",
         "examples": [
-            "What is the current weather in Dehradun?",
+            "Will it rain today in Dehradun and should I carry an umbrella?",
             "How humid is it in Dehradun today?",
             "Provide a 3-day weather forecast for Delhi.",
         ],
