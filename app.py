@@ -132,7 +132,7 @@ AGENTS = {
         "examples": [
             "Plan a 10-day trip to Kedarnath for 2 people.",
             "What is the best transport option for a 650 km journey?",
-            "Provide a complete travel checklist for a USA trip."
+            "What are common travel mistakes I should avoid for my destination?"
         ],
     },
     "💰  Finance Agent": {
