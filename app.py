@@ -121,7 +121,7 @@ AGENTS = {
         "description": "Get real-time weather insights, forecasts, and practical daily recommendations.",
         "examples": [
             "Will it rain today in Dehradun and should I carry an umbrella?",
-            "How humid is it in Dehradun today?",
+            "Give me a 5-day forecast with travel or outdoor activity suggestions.",
             "Provide a 3-day weather forecast for Delhi.",
         ],
     },
