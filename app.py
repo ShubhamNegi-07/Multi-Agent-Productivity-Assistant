@@ -122,7 +122,7 @@ AGENTS = {
         "examples": [
             "Will it rain today in Dehradun and should I carry an umbrella?",
             "Give me a 5-day forecast with travel or outdoor activity suggestions.",
-            "Provide a 3-day weather forecast for Delhi.",
+            "Will there be any extreme weather alerts this week?",
         ],
     },
     "✈️  Travel Agent": {
