@@ -130,7 +130,7 @@ AGENTS = {
         "color": "#81c784",
         "description": "Plan trips, estimate budgets, get packing checklists & travel tips.",
         "examples": [
-            "Plan a 10-day trip to Kedarnath for 2 people.",
+            "Create a detailed itinerary for Kedarnath with time, cost, and difficulty level.",
             "What is the best transport option for a 650 km journey?",
             "What are common travel mistakes I should avoid for my destination?"
         ],
