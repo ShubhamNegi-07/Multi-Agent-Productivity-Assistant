@@ -123,6 +123,7 @@ AGENTS = {
             "Will it rain today in Dehradun and should I carry an umbrella?",
             "Give me a 5-day forecast with travel or outdoor activity suggestions.",
             "Will there be any extreme weather alerts this week?",
+            "Is it safe to travel tomorrow based on weather conditions?",
             "Tell me the best time of day to go out today based on heat and sunlight."
         ],
     },
