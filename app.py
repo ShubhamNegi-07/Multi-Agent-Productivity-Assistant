@@ -133,7 +133,7 @@ AGENTS = {
         "description": "Plan trips, estimate budgets, get packing checklists & travel tips.",
         "examples": [
             "Create a detailed itinerary for Kedarnath with time, cost, and difficulty level.",
-            "What’s the cheapest way to travel 650 km with comfort and time balance?",
+            "Suggest a solo trip plan for a beginner traveler from Dehradun.",
             "Give me a packing checklist based on destination, weather, and trip duration.",
             "Compare train vs bus vs flight for my trip with cost and time analysis.",
             "What are common travel mistakes I should avoid for my destination?"
