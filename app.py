@@ -132,6 +132,7 @@ AGENTS = {
         "examples": [
             "Create a detailed itinerary for Kedarnath with time, cost, and difficulty level.",
             "What’s the cheapest way to travel 650 km with comfort and time balance?",
+            "Give me a packing checklist based on destination, weather, and trip duration.",
             "What are common travel mistakes I should avoid for my destination?"
         ],
     },
