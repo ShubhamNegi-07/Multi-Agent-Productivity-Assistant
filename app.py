@@ -158,7 +158,7 @@ AGENTS = {
             "Plan my entire week with time-blocking for college, coding practice, and gym.",
             "Draft a professional sick leave email to my manager.",
             "Turn my messy notes into a clean, actionable to-do list with priorities.",
-            "Help me organize my day when I feel overwhelmed and unproductive.",
+            "Generate a meeting agenda with clear outcomes and time limits.",
         ],
     },
 }
