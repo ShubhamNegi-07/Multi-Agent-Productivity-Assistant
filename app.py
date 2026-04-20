@@ -157,7 +157,7 @@ AGENTS = {
         "examples": [
             "Plan my entire week with time-blocking for college, coding practice, and gym.",
             "Draft a professional sick leave email to my manager.",
-            "Create a daily routine to improve focus and avoid procrastination.",
+            "Turn my messy notes into a clean, actionable to-do list with priorities.",
             "Help me organize my day when I feel overwhelmed and unproductive.",
         ],
     },
