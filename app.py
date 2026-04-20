@@ -144,7 +144,7 @@ AGENTS = {
         "color": "#ffb74d",
         "description": "Calculate EMI, interest, and split your monthly budget smartly.",
         "examples": [
-            "Break down my ₹25,000 monthly income into rent, savings, and expenses realistically.",
+            "Analyze my expenses and tell me where I am wasting money.",
             "Help me plan an emergency fund step-by-step.",
             "How can I save ₹1 lakh in 12 months with my current spending habits?",
             "Suggest how I can reduce unnecessary spending without affecting my lifestyle.",
