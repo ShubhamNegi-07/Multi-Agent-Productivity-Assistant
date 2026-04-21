@@ -133,7 +133,6 @@ AGENTS = {
             "Create a detailed itinerary for Kedarnath with time, cost, and difficulty level.",
             "Suggest a solo trip plan for a beginner traveler from Dehradun.",
             "Give me a packing checklist based on destination, weather, and trip duration.",
-            "Compare train vs bus vs flight for my trip with cost and time analysis.",
         ],
     },
     "💰  Finance Agent": {
