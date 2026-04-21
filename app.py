@@ -120,7 +120,6 @@ AGENTS = {
         "color": "#4fc3f7",
         "description": "Get real-time weather insights, forecasts, and practical daily recommendations.",
         "examples": [
-            "Will it rain today in Dehradun and should I carry an umbrella?",
             "Give me a 5-day forecast with travel or outdoor activity suggestions.",
             "Will there be any extreme weather alerts this week?",
             "Is it safe to travel tomorrow based on weather conditions?",
