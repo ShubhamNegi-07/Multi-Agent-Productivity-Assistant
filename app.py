@@ -136,7 +136,6 @@ AGENTS = {
             "Suggest a solo trip plan for a beginner traveler from Dehradun.",
             "Give me a packing checklist based on destination, weather, and trip duration.",
             "Compare train vs bus vs flight for my trip with cost and time analysis.",
-            "What are common travel mistakes I should avoid for my destination?"
         ],
     },
     "💰  Finance Agent": {
