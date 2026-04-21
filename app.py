@@ -120,7 +120,6 @@ AGENTS = {
         "color": "#4fc3f7",
         "description": "Get real-time weather insights, forecasts, and practical daily recommendations.",
         "examples": [
-            "Give me a 5-day forecast with travel or outdoor activity suggestions.",
             "Will there be any extreme weather alerts this week?",
             "Is it safe to travel tomorrow based on weather conditions?",
             "Tell me the best time of day to go out today based on heat and sunlight."
