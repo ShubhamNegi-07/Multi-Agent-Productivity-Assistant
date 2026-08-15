@@ -319,3 +319,21 @@ AGENTS = {
         "icon": "📋",
     },
 }
+
+# ─── Lazy import helpers ──────────────────────────────────────────────────────
+@st.cache_resource(show_spinner=False)
+def load_agent(agent_key: str):
+    if agent_key == "weather":
+        from agents.weather_agent import run_weather_agent
+        return run_weather_agent
+    elif agent_key == "travel":
+        from agents.travel_agent import run_travel_agent
+        return run_travel_agent
+    elif agent_key == "finance":
+        from agents.finance_agent import run_finance_agent
+        return run_finance_agent
+    elif agent_key == "productivity":
+        from agents.productivity_agent import run_productivity_agent
+        return run_productivity_agent
+    else:
+        raise ValueError(f"Unknown agent key: {agent_key}")
