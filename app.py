@@ -337,3 +337,39 @@ def load_agent(agent_key: str):
         return run_productivity_agent
     else:
         raise ValueError(f"Unknown agent key: {agent_key}")
+
+    
+# ─── Sidebar Navigation ───────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("""
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem;">
+            <div class="sidebar-avatar" aria-hidden="true">✨</div>
+            <span style="font-size: 1.1rem; font-weight: 700; color: #111111;">Assistant Hub</span>
+        </div>
+    """, unsafe_allow_html=True)
+ 
+    if st.button("➕ New Chat", use_container_width=True, disabled=st.session_state.processing):
+        st.session_state.history = []
+        st.rerun()
+ 
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("### Agents")
+ 
+    selected_agent_label = st.radio(
+        "Select Agent",
+        list(AGENTS.keys()),
+        index=0,
+        label_visibility="collapsed",
+        disabled=st.session_state.processing,
+        help="Choose which specialist agent handles your next question.",
+    )
+ 
+    agent_info = AGENTS[selected_agent_label]
+    agent_color = agent_info["color"]
+ 
+    st.markdown("---")
+    st.markdown(
+        f"<div style='font-size:0.8rem; color:#555555; font-weight:600;'>ACTIVE AGENT</div>"
+        f"<div style='font-size:0.95rem; font-weight:700; color:{agent_color}; margin-top:2px;'>{selected_agent_label}</div>",
+        unsafe_allow_html=True,
+    )
