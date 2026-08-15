@@ -373,3 +373,81 @@ with st.sidebar:
         f"<div style='font-size:0.95rem; font-weight:700; color:{agent_color}; margin-top:2px;'>{selected_agent_label}</div>",
         unsafe_allow_html=True,
     )
+
+    
+# ─── Main Interface Layout ───────────────────────────────────────────────────
+# Requirement 1+2: agent name up top + personalized greeting. Both live inside
+# one aria-live region so screen readers announce the change as soon as the
+# user switches agents in the sidebar — Streamlit reruns the whole script on
+# radio change, so this updates immediately with no page reload.
+tagline_text = agent_info["tagline"].format(name=agent_info["full_name"])
+st.markdown(
+    f"""
+    <div role="status" aria-live="polite" aria-atomic="true">
+        <div class="agent-name" style="color:{agent_color};">
+            {agent_info['icon']} {agent_info['full_name']}
+        </div>
+        <h1 class="main-heading">{agent_info['greeting_template']}</h1>
+        <p style="text-align:center; color:#444444; font-size:0.95rem; margin-top:-1rem; margin-bottom:1.5rem;">
+            {tagline_text}
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+ 
+# Chat box — native bordered container, no manual div open/close split across calls
+chat_box = st.container(border=True)
+with chat_box:
+    user_query = st.text_area(
+        "Query Input",
+        placeholder=f"How can {agent_info['full_name']} help you today?",
+        height=75,
+        label_visibility="collapsed",
+        disabled=st.session_state.processing,
+    )
+ 
+    col_sub1, col_sub2 = st.columns([5, 1])
+    with col_sub2:
+        if st.session_state.processing:
+            st.markdown(
+                '<div class="circle-loader-wrap"><div class="circle-loader"></div></div>',
+                unsafe_allow_html=True,
+            )
+            submit = False
+        else:
+            submit = st.button("Ask ➔", use_container_width=True)
+ 
+# Quick Start Cards
+if not st.session_state.history and not st.session_state.processing:
+    st.markdown(
+        "<p style='text-align: center; color: #444444; font-size: 0.85rem; font-weight: 700; "
+        "text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.2rem;'>Quick Start Examples</p>",
+        unsafe_allow_html=True,
+    )
+ 
+    qc1, qc2 = st.columns(2)
+    examples_subset = agent_info["examples"][:2]
+    for i, ex_query in enumerate(examples_subset):
+        with [qc1, qc2][i]:
+            st.markdown(
+                f"""
+                <div class="quick-card">
+                    <div class="quick-card-title">{agent_info['icon']} Sample Query {i+1}</div>
+                    <div class="quick-card-desc">{ex_query}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+ 
+# ─── Step 1: click Ask -> set processing state, rerun so spinner shows immediately ─────
+if submit:
+    query = user_query.strip()
+    if not query:
+        st.warning("⚠️ Please enter a query before submitting.")
+    else:
+        st.session_state.processing = True
+        st.session_state.pending_query = query
+        st.session_state.pending_agent = agent_info
+        st.rerun()
+ 
