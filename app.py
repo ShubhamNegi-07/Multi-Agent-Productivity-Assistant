@@ -451,3 +451,43 @@ if submit:
         st.session_state.pending_agent = agent_info
         st.rerun()
  
+
+ 
+# ─── Step 1: click Ask -> set processing state, rerun so spinner shows immediately ─────
+if submit:
+    query = user_query.strip()
+    if not query:
+        st.warning("⚠️ Please enter a query before submitting.")
+    else:
+        st.session_state.processing = True
+        st.session_state.pending_query = query
+        st.session_state.pending_agent = agent_info
+        st.rerun()
+ 
+# ─── Step 2: actually run the agent (spinner is already visible from step 1's rerun) ───
+if st.session_state.processing:
+    pending_agent = st.session_state.pending_agent
+    pending_query = st.session_state.pending_query
+    try:
+        start_time = time.time()
+        run_fn = load_agent(pending_agent["key"])
+        response = run_fn(pending_query)
+        elapsed = time.time() - start_time
+ 
+        st.session_state.history.append({
+            "agent": pending_agent["full_name"],
+            "color": pending_agent["color"],
+            "query": pending_query,
+            "response": response,
+            "time": f"{elapsed:.2f}s",
+        })
+    except EnvironmentError as env_err:
+        st.error(f"🔑 Configuration Error: {env_err}")
+    except Exception as exc:
+        st.error(f"❌ Execution error: {str(exc)}")
+    finally:
+        st.session_state.processing = False
+        st.session_state.pending_query = None
+        st.session_state.pending_agent = None
+        st.rerun()
+ 
