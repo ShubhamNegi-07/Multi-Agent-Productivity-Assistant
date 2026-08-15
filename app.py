@@ -1,316 +1,321 @@
+PY
 """
 app.py
 ------
 Streamlit Frontend for the Multi-Agent Productivity Assistant.
-Provides an interactive UI to select and query any of the four specialized agents.
+Fixed: stray empty div at top, response rendering outside its card,
+gap between chat box and response, added animated loading circle on Ask button.
 """
-
+ 
 import streamlit as st
 import time
-
+ 
 # ─── Page Configuration ───────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Multi-Agent Productivity Assistant",
     page_icon="🤖",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="expanded",
 )
-
-# ─── Custom CSS ───────────────────────────────────────────────────────────────
+ 
+# ─── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* Main background */
-    .stApp { background-color: #0f1117; }
-
-    /* Sidebar */
+    .stApp {
+        background: linear-gradient(135deg, #fdfbf7 0%, #f4ebd0 100%);
+        color: #1a1a1a;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+ 
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+ 
+    .block-container { padding: 2rem 3rem; max-width: 1300px; }
+ 
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1a1d2e 0%, #16213e 100%);
-        border-right: 1px solid #2d3561;
+        background-color: #faf8f5;
+        border-right: 1px solid #eae5de;
+        padding-top: 1.5rem;
     }
-
-    /* Card styling for responses */
-    .response-card {
-        background: linear-gradient(135deg, #1a1d2e, #16213e);
-        border: 1px solid #2d3561;
-        border-radius: 12px;
-        padding: 1rem 1.2rem;
-        margin-top: 0.5rem;
-        color: #e0e0e0;
-        line-height: 1.7;
-        font-size: 1rem;
-        white-space: normal;
-        word-break: break-word;
-        overflow-x: hidden;
+    [data-testid="stSidebar"] h3, [data-testid="stSidebar"] label {
+        color: #2d2d2d !important; font-weight: 600 !important;
     }
-
-    /* Agent badge */
-    .agent-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label p {
+        color: #1a1a1a !important;
+        font-weight: 600 !important;
     }
-
-    /* Title gradient */
-    .main-title {
-        background: linear-gradient(90deg, #667eea, #764ba2, #f64f59);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 2.4rem;
-        font-weight: 800;
+    [data-testid="stSidebar"] .stRadio label {
+        background: transparent !important;
+        border-radius: 8px;
+        padding: 8px 12px !important;
+        transition: background 0.2s;
+    }
+    [data-testid="stSidebar"] .stRadio label:hover {
+        background: #f0ece4 !important;
+    }
+ 
+    .main-heading {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #111111;
         text-align: center;
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.03em;
     }
-
-    /* Info box */
-    .info-box {
-        background: rgba(102, 126, 234, 0.1);
-        border-left: 4px solid #667eea;
-        border-radius: 4px;
-        padding: 0.8rem 1rem;
-        margin: 0.5rem 0;
-        color: #a0aec0;
+ 
+    /* Native bordered container used for the chat box — replaces manual div hack */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: #ffffff;
+        border: 1px solid #dcd6cd !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        width: min(1100px, 94%);
+        margin: 0 auto 1rem auto;
+        padding: 8px;
+    }
+ 
+    .stTextArea textarea {
+        background-color: #ffffff !important;
+        border: none !important;
+        color: #111111 !important;
+        font-size: 1.05rem !important;
+        font-weight: 500 !important;
+        padding: 4px !important;
+        box-shadow: none !important;
+    }
+    .stTextArea textarea::placeholder {
+        color: #666666 !important;
+        opacity: 1 !important;
+    }
+    .stTextArea textarea:focus {
+        box-shadow: none !important;
+    }
+ 
+    .quick-card {
+        background: #ffffff;
+        border: 1px solid #e2ddd5;
+        border-radius: 14px;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .quick-card-title {
+        font-weight: 700;
+        color: #111111;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+    .quick-card-desc {
+        color: #444444;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+ 
+    .stButton > button {
+        background: #111111 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 10px;
+        padding: 0.5rem 1.2rem;
+        font-weight: 600;
         font-size: 0.9rem;
     }
-
-    /* Metric cards */
-    .metric-row {
-        display: flex;
-        gap: 1rem;
-        margin: 1rem 0;
-    }
-
-    /* Query input area */
-    .stTextArea textarea {
-        background-color: #1a1d2e !important;
-        border: 1px solid #2d3561 !important;
-        border-radius: 8px !important;
-        color: #e0e0e0 !important;
-        font-size: 1rem !important;
-    }
-
-    /* Submit button */
-    .stButton > button {
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 2rem;
-        font-weight: 600;
-        font-size: 1rem;
-        width: 100%;
-        transition: opacity 0.2s;
-    }
-
     .stButton > button:hover {
-        opacity: 0.85;
+        background: #333333 !important;
+        color: #ffffff !important;
     }
-
-    /* Divider */
-    hr { border-color: #2d3561; }
+ 
+    /* Response card — fluid width, fills the main content area */
+    .response-card {
+        background: #ffffff;
+        border: 1px solid #dcd6cd;
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin: 0.4rem auto 1.4rem auto;
+        width: min(1100px, 94%);
+        color: #111111;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+ 
+    /* Follow-up "Continue" affordance under the latest agent response */
+    .followup-hint {
+        width: min(1100px, 94%);
+        margin: 0.6rem auto 0.8rem auto;
+        font-size: 0.85rem;
+        color: #555555;
+        line-height: 1.4;
+    }
+    div[data-testid="stForm"] {
+        width: min(1100px, 94%);
+        margin: 0 auto 1.5rem auto;
+        border: 1px dashed #dcd6cd;
+        border-radius: 12px;
+        padding: 10px 14px;
+        background: #fffdf9;
+    }
+ 
+    /* Continue button (form submit) — explicit hover/active/focus so state
+       never inverts to an unreadable combo (e.g. dark-on-dark on click) */
+    div[data-testid="stForm"] .stButton > button,
+    div[data-testid="stFormSubmitButton"] > button {
+        background: #111111 !important;
+        color: #ffffff !important;
+        border: 1px solid #111111 !important;
+    }
+    div[data-testid="stForm"] .stButton > button:hover,
+    div[data-testid="stFormSubmitButton"] > button:hover {
+        background: #333333 !important;
+        color: #ffffff !important;
+        border-color: #333333 !important;
+    }
+    div[data-testid="stForm"] .stButton > button:active,
+    div[data-testid="stFormSubmitButton"] > button:active {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border-color: #000000 !important;
+    }
+    div[data-testid="stForm"] .stButton > button:focus-visible,
+    div[data-testid="stFormSubmitButton"] > button:focus-visible {
+        background: #111111 !important;
+        color: #ffffff !important;
+        outline: 3px solid #0284c7 !important;
+        outline-offset: 2px;
+    }
+ 
+    /* Sidebar header avatar */
+    .sidebar-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #111111;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+ 
+    /* Top agent-name label above the greeting */
+    .agent-name {
+        text-align: center;
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 0.5rem;
+    }
+ 
+    /* Visible focus states for keyboard navigation (a11y) */
+    .stButton > button:focus-visible,
+    .stTextArea textarea:focus-visible,
+    .stTextInput input:focus-visible,
+    [data-testid="stSidebar"] .stRadio label:focus-within {
+        outline: 3px solid #0284c7 !important;
+        outline-offset: 2px;
+    }
+ 
+    /* Responsive breakpoints */
+    @media (max-width: 640px) {
+        .block-container { padding: 1rem 1rem; }
+        .main-heading { font-size: 1.9rem; }
+        .agent-name { font-size: 0.9rem; }
+        div[data-testid="stVerticalBlockBorderWrapper"],
+        .response-card,
+        .followup-hint,
+        div[data-testid="stForm"] { width: 100%; }
+    }
+ 
+    /* Animated loading circle for the Ask button */
+    .circle-loader-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 42px;
+    }
+    .circle-loader {
+        width: 22px;
+        height: 22px;
+        border: 3px solid #dcd6cd;
+        border-top: 3px solid #111111;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+ 
+    hr { border-color: #dcd6cd; margin: 1.2rem 0; }
 </style>
 """, unsafe_allow_html=True)
-
-
+ 
 # ─── Agent Configuration ──────────────────────────────────────────────────────
 AGENTS = {
     "🌤️  Weather Agent": {
+        "id": "weather",
+        "full_name": "Weather Agent",
         "key": "weather",
-        "color": "#4fc3f7",
+        "color": "#0284c7",
         "description": "Get real-time weather insights, forecasts, and practical daily recommendations.",
+        "greeting_template": "Good day, Creator ☁️",
+        "tagline": "{name} is watching the skies so your plans don't get rained on.",
         "examples": [
             "Will there be any extreme weather alerts this week?",
             "Is it safe to travel tomorrow based on weather conditions?",
-            "Tell me the best time of day to go out today based on heat and sunlight."
+            "Tell me the best time of day to go out today based on heat and sunlight.",
         ],
+        "icon": "🌤️",
     },
     "✈️  Travel Agent": {
+        "id": "travel",
+        "full_name": "Travel Agent",
         "key": "travel",
-        "color": "#81c784",
+        "color": "#16a34a",
         "description": "Plan trips, estimate budgets, get packing checklists & travel tips.",
+        "greeting_template": "Ready for the next trip, Creator ✈️",
+        "tagline": "{name} is here to turn 'someday' into an itinerary.",
         "examples": [
             "Create a detailed itinerary for Kedarnath with time, cost, and difficulty level.",
             "Suggest a solo trip plan for a beginner traveler from Dehradun.",
             "Give me a packing checklist based on destination, weather, and trip duration.",
         ],
+        "icon": "✈️",
     },
     "💰  Finance Agent": {
+        "id": "finance",
+        "full_name": "Finance Agent",
         "key": "finance",
-        "color": "#ffb74d",
+        "color": "#d97706",
         "description": "Calculate EMI, interest, and split your monthly budget smartly.",
+        "greeting_template": "Let's talk money, Creator 💰",
+        "tagline": "{name} is on your side, one smart rupee at a time.",
         "examples": [
             "Help me plan an emergency fund step-by-step.",
             "How can I save ₹1 lakh in 12 months with my current spending habits?",
             "Suggest how I can reduce unnecessary spending without affecting my lifestyle.",
         ],
+        "icon": "💰",
     },
     "📋  Productivity Agent": {
+        "id": "productivity",
+        "full_name": "Productivity Agent",
         "key": "productivity",
-        "color": "#ce93d8",
+        "color": "#9333ea",
         "description": "Create to-do lists, meeting agendas, emails & study plans.",
+        "greeting_template": "Let's get things done, Creator 📋",
+        "tagline": "{name} turns your chaos into a clean checklist.",
         "examples": [
             "Plan my entire week with time-blocking for college, coding practice, and gym.",
             "Draft a professional sick leave email to my manager.",
             "Turn my messy notes into a clean, actionable to-do list with priorities.",
         ],
+        "icon": "📋",
     },
 }
-
-
-# ─── Lazy import helpers ──────────────────────────────────────────────────────
-@st.cache_resource(show_spinner=False)
-def load_agent(agent_key: str):
-    """Load and cache each agent to avoid re-initialisation on every query."""
-    if agent_key == "weather":
-        from agents.weather_agent import run_weather_agent
-        return run_weather_agent
-    elif agent_key == "travel":
-        from agents.travel_agent import run_travel_agent
-        return run_travel_agent
-    elif agent_key == "finance":
-        from agents.finance_agent import run_finance_agent
-        return run_finance_agent
-    elif agent_key == "productivity":
-        from agents.productivity_agent import run_productivity_agent
-        return run_productivity_agent
-    else:
-        raise ValueError(f"Unknown agent key: {agent_key}")
-
-
-# ─── Session State ────────────────────────────────────────────────────────────
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-
-# ─── Sidebar ──────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("## 🤖 Agent Selector")
-    st.markdown("---")
-
-    selected_agent_label = st.radio(
-        "Choose an agent:",
-        list(AGENTS.keys()),
-        index=0,
-        label_visibility="collapsed",
-    )
-
-    agent_info = AGENTS[selected_agent_label]
-    agent_color = agent_info["color"]
-
-    st.markdown(f"""
-    <div style='background:rgba(255,255,255,0.05); border-radius:10px;
-                padding:12px; margin-top:12px; border-left:4px solid {agent_color};'>
-        <p style='color:{agent_color}; font-weight:700; margin:0 0 6px;'>About this Agent</p>
-        <p style='color:#a0aec0; font-size:0.88rem; margin:0;'>{agent_info['description']}</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("#### 💡 Example Queries")
-    for ex in agent_info["examples"]:
-        st.markdown(f"<div class='info-box'>→ {ex}</div>", unsafe_allow_html=True)
-
-    st.markdown("---")
-    if st.button("🗑️  Clear History"):
-        st.session_state.history = []
-        st.rerun()
-
-    st.markdown(
-        "<p style='color:#4a5568; font-size:0.78rem; text-align:center; margin-top:20px;'>"
-        "Built with LangChain · Gemini · Streamlit</p>",
-        unsafe_allow_html=True,
-    )
-
-
-# ─── Main UI ──────────────────────────────────────────────────────────────────
-st.markdown("<h1 class='main-title'>Multi-Agent Productivity Assistant</h1>", unsafe_allow_html=True)
-st.markdown(
-    "<p style='text-align:center; color:#718096; margin-top:-10px;'>"
-    "Powered by LangChain · Google Gemini · Specialized AI Agents</p>",
-    unsafe_allow_html=True,
-)
-st.markdown("---")
-
-# Active agent indicator
-st.markdown(
-    f"<p style='color:{agent_color}; font-weight:600; font-size:1.05rem;'>"
-    f"Active Agent: {selected_agent_label}</p>",
-    unsafe_allow_html=True,
-)
-
-# Query input
-user_query = st.text_area(
-    "Enter your query:",
-    placeholder=f"e.g. {agent_info['examples'][0]}",
-    height=110,
-    label_visibility="collapsed",
-)
-
-col1, col2 = st.columns([3, 1])
-with col1:
-    submit = st.button("🚀  Ask Agent", use_container_width=True)
-with col2:
-    st.markdown("")
-
-# ─── Agent Execution ──────────────────────────────────────────────────────────
-if submit:
-    query = user_query.strip()
-    if not query:
-        st.warning("⚠️  Please enter a query before submitting.")
-    else:
-        with st.spinner(f"🔄  {selected_agent_label.strip()} is thinking..."):
-            try:
-                start_time = time.time()
-                run_fn = load_agent(agent_info["key"])
-                response = run_fn(query)
-                elapsed = time.time() - start_time
-
-                st.session_state.history.append({
-                    "agent": selected_agent_label,
-                    "color": agent_color,
-                    "query": query,
-                    "response": response,
-                    "time": f"{elapsed:.2f}s",
-                })
-
-            except EnvironmentError as env_err:
-                st.error(f"🔑 Configuration Error: {env_err}")
-                st.info("Make sure your `.env` file contains valid API keys.")
-            except Exception as exc:
-                st.error(f"❌ Agent error: {str(exc)}")
-
-# ─── Response History ─────────────────────────────────────────────────────────
-if st.session_state.history:
-    st.markdown("---")
-    st.markdown("### 💬 Conversation")
-
-    for idx, item in enumerate(reversed(st.session_state.history)):
-        with st.container():
-            # User query
-            st.markdown(
-                f"<div style='background:#1e2130; border-radius:8px; padding:10px 14px;"
-                f"margin-bottom:6px; border-left:3px solid #4a5568;'>"
-                f"<span style='color:#718096; font-size:0.78rem;'>YOU</span><br>"
-                f"<span style='color:#e2e8f0;'>{item['query']}</span>"
-                f"</div>",
-                unsafe_allow_html=True,
-            )
-
-            # Agent response header
-            st.markdown(
-                f"<div style='background:#1a1d2e; border-radius:8px; padding:12px 16px;"
-                f"margin-bottom:4px; border-left:3px solid {item['color']};'>"
-                f"<span style='color:{item['color']}; font-size:0.78rem; font-weight:700;'>"
-                f"{item['agent'].strip().upper()}</span>"
-                f"<span style='color:#4a5568; font-size:0.75rem; float:right;'>⏱ {item['time']}</span>"
-                f"</div>",
-                unsafe_allow_html=True,
-            )
-
-            # Agent response body
-            st.markdown('<div class="response-card">', unsafe_allow_html=True)
-            st.markdown(item["response"])
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            if idx < len(st.session_state.history) - 1:
-                st.markdown("---")
