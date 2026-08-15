@@ -490,4 +490,41 @@ if st.session_state.processing:
         st.session_state.pending_query = None
         st.session_state.pending_agent = None
         st.rerun()
+
+ 
+# ─── Conversation History Stream ──────────────────────────────────────────────
+if st.session_state.history:
+    st.markdown("---")
+    st.markdown("<h3 style='color: #111111; font-weight: 700;'>Conversation History</h3>", unsafe_allow_html=True)
+ 
+    history_list = list(reversed(st.session_state.history))
+ 
+    for idx, item in enumerate(history_list):
+        st.markdown(
+            f"<div style='background:#ffffff; border: 1px solid #dcd6cd; border-radius:10px; "
+            f"padding:12px 16px; margin-bottom:8px; width: min(1100px, 94%); margin-left: auto; margin-right: auto; "
+            f"box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-wrap: break-word;'>"
+            f"<span style='color:#555555; font-size:0.75rem; font-weight: 700;'>YOU</span><br>"
+            f"<span style='color:#111111; font-size:0.95rem; font-weight: 500;'>{item['query']}</span>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+ 
+        st.markdown(
+            f"<div style='width: min(1100px, 94%); margin-left: auto; margin-right: auto; display: flex; "
+            f"justify-content: space-between; align-items: center; margin-top: 6px; padding: 0 4px;'>"
+            f"<span style='color:{item['color']}; font-size:0.8rem; font-weight:700;'>{item['agent'].upper()}</span>"
+            f"<span style='color:#555555; font-size:0.75rem; font-weight: 600;'>⏱ {item['time']}</span>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+ 
+        # Response rendered INSIDE the card in a single st.markdown call.
+        # (Splitting open-div / content / close-div across separate st.markdown
+        # calls was the bug — each call gets sanitized independently, so the
+        # div never actually wraps the content.)
+        st.markdown(
+            f'<div class="response-card">\n\n{item["response"]}\n\n</div>',
+            unsafe_allow_html=True,
+        )
  
