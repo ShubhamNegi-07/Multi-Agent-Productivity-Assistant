@@ -1,4 +1,3 @@
-PY
 """
 app.py
 ------
@@ -6,10 +5,10 @@ Streamlit Frontend for the Multi-Agent Productivity Assistant.
 Fixed: stray empty div at top, response rendering outside its card,
 gap between chat box and response, added animated loading circle on Ask button.
 """
- 
+
 import streamlit as st
 import time
- 
+
 # ─── Page Configuration ───────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Multi-Agent Productivity Assistant",
@@ -17,7 +16,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
- 
+
 # ─── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
@@ -26,13 +25,13 @@ st.markdown("""
         color: #1a1a1a;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
- 
+
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
- 
+
     .block-container { padding: 2rem 3rem; max-width: 1300px; }
- 
+
     [data-testid="stSidebar"] {
         background-color: #faf8f5;
         border-right: 1px solid #eae5de;
@@ -54,7 +53,7 @@ st.markdown("""
     [data-testid="stSidebar"] .stRadio label:hover {
         background: #f0ece4 !important;
     }
- 
+
     .main-heading {
         font-size: 2.8rem;
         font-weight: 700;
@@ -64,7 +63,7 @@ st.markdown("""
         margin-bottom: 1.5rem;
         letter-spacing: -0.03em;
     }
- 
+
     /* Native bordered container used for the chat box — replaces manual div hack */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: #ffffff;
@@ -75,7 +74,7 @@ st.markdown("""
         margin: 0 auto 1rem auto;
         padding: 8px;
     }
- 
+
     .stTextArea textarea {
         background-color: #ffffff !important;
         border: none !important;
@@ -92,7 +91,7 @@ st.markdown("""
     .stTextArea textarea:focus {
         box-shadow: none !important;
     }
- 
+
     .quick-card {
         background: #ffffff;
         border: 1px solid #e2ddd5;
@@ -112,7 +111,7 @@ st.markdown("""
         font-size: 0.85rem;
         line-height: 1.4;
     }
- 
+
     .stButton > button {
         background: #111111 !important;
         color: #ffffff !important;
@@ -126,7 +125,7 @@ st.markdown("""
         background: #333333 !important;
         color: #ffffff !important;
     }
- 
+
     /* Response card — fluid width, fills the main content area */
     .response-card {
         background: #ffffff;
@@ -142,7 +141,7 @@ st.markdown("""
         overflow-wrap: break-word;
         word-break: break-word;
     }
- 
+
     /* Follow-up "Continue" affordance under the latest agent response */
     .followup-hint {
         width: min(1100px, 94%);
@@ -159,7 +158,7 @@ st.markdown("""
         padding: 10px 14px;
         background: #fffdf9;
     }
- 
+
     /* Continue button (form submit) — explicit hover/active/focus so state
        never inverts to an unreadable combo (e.g. dark-on-dark on click) */
     div[data-testid="stForm"] .stButton > button,
@@ -187,7 +186,7 @@ st.markdown("""
         outline: 3px solid #0284c7 !important;
         outline-offset: 2px;
     }
- 
+
     /* Sidebar header avatar */
     .sidebar-avatar {
         width: 34px;
@@ -201,7 +200,7 @@ st.markdown("""
         font-size: 1rem;
         flex-shrink: 0;
     }
- 
+
     /* Top agent-name label above the greeting */
     .agent-name {
         text-align: center;
@@ -211,7 +210,7 @@ st.markdown("""
         text-transform: uppercase;
         margin-top: 0.5rem;
     }
- 
+
     /* Visible focus states for keyboard navigation (a11y) */
     .stButton > button:focus-visible,
     .stTextArea textarea:focus-visible,
@@ -220,7 +219,7 @@ st.markdown("""
         outline: 3px solid #0284c7 !important;
         outline-offset: 2px;
     }
- 
+
     /* Responsive breakpoints */
     @media (max-width: 640px) {
         .block-container { padding: 1rem 1rem; }
@@ -231,7 +230,7 @@ st.markdown("""
         .followup-hint,
         div[data-testid="stForm"] { width: 100%; }
     }
- 
+
     /* Animated loading circle for the Ask button */
     .circle-loader-wrap {
         display: flex;
@@ -251,11 +250,11 @@ st.markdown("""
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
- 
+
     hr { border-color: #dcd6cd; margin: 1.2rem 0; }
 </style>
 """, unsafe_allow_html=True)
- 
+
 # ─── Agent Configuration ──────────────────────────────────────────────────────
 AGENTS = {
     "🌤️  Weather Agent": {
@@ -338,7 +337,16 @@ def load_agent(agent_key: str):
     else:
         raise ValueError(f"Unknown agent key: {agent_key}")
 
-    
+# ─── Session State ────────────────────────────────────────────────────────────
+if "history" not in st.session_state:
+    st.session_state.history = []
+if "processing" not in st.session_state:
+    st.session_state.processing = False
+if "pending_query" not in st.session_state:
+    st.session_state.pending_query = None
+if "pending_agent" not in st.session_state:
+    st.session_state.pending_agent = None
+
 # ─── Sidebar Navigation ───────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
@@ -347,14 +355,14 @@ with st.sidebar:
             <span style="font-size: 1.1rem; font-weight: 700; color: #111111;">Assistant Hub</span>
         </div>
     """, unsafe_allow_html=True)
- 
+
     if st.button("➕ New Chat", use_container_width=True, disabled=st.session_state.processing):
         st.session_state.history = []
         st.rerun()
- 
+
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("### Agents")
- 
+
     selected_agent_label = st.radio(
         "Select Agent",
         list(AGENTS.keys()),
@@ -363,10 +371,10 @@ with st.sidebar:
         disabled=st.session_state.processing,
         help="Choose which specialist agent handles your next question.",
     )
- 
+
     agent_info = AGENTS[selected_agent_label]
     agent_color = agent_info["color"]
- 
+
     st.markdown("---")
     st.markdown(
         f"<div style='font-size:0.8rem; color:#555555; font-weight:600;'>ACTIVE AGENT</div>"
@@ -374,7 +382,6 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    
 # ─── Main Interface Layout ───────────────────────────────────────────────────
 # Requirement 1+2: agent name up top + personalized greeting. Both live inside
 # one aria-live region so screen readers announce the change as soon as the
@@ -395,7 +402,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
- 
+
 # Chat box — native bordered container, no manual div open/close split across calls
 chat_box = st.container(border=True)
 with chat_box:
@@ -406,7 +413,7 @@ with chat_box:
         label_visibility="collapsed",
         disabled=st.session_state.processing,
     )
- 
+
     col_sub1, col_sub2 = st.columns([5, 1])
     with col_sub2:
         if st.session_state.processing:
@@ -417,7 +424,7 @@ with chat_box:
             submit = False
         else:
             submit = st.button("Ask ➔", use_container_width=True)
- 
+
 # Quick Start Cards
 if not st.session_state.history and not st.session_state.processing:
     st.markdown(
@@ -425,7 +432,7 @@ if not st.session_state.history and not st.session_state.processing:
         "text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.2rem;'>Quick Start Examples</p>",
         unsafe_allow_html=True,
     )
- 
+
     qc1, qc2 = st.columns(2)
     examples_subset = agent_info["examples"][:2]
     for i, ex_query in enumerate(examples_subset):
@@ -439,20 +446,7 @@ if not st.session_state.history and not st.session_state.processing:
                 """,
                 unsafe_allow_html=True,
             )
- 
-# ─── Step 1: click Ask -> set processing state, rerun so spinner shows immediately ─────
-if submit:
-    query = user_query.strip()
-    if not query:
-        st.warning("⚠️ Please enter a query before submitting.")
-    else:
-        st.session_state.processing = True
-        st.session_state.pending_query = query
-        st.session_state.pending_agent = agent_info
-        st.rerun()
- 
 
- 
 # ─── Step 1: click Ask -> set processing state, rerun so spinner shows immediately ─────
 if submit:
     query = user_query.strip()
@@ -463,7 +457,7 @@ if submit:
         st.session_state.pending_query = query
         st.session_state.pending_agent = agent_info
         st.rerun()
- 
+
 # ─── Step 2: actually run the agent (spinner is already visible from step 1's rerun) ───
 if st.session_state.processing:
     pending_agent = st.session_state.pending_agent
@@ -473,7 +467,7 @@ if st.session_state.processing:
         run_fn = load_agent(pending_agent["key"])
         response = run_fn(pending_query)
         elapsed = time.time() - start_time
- 
+
         st.session_state.history.append({
             "agent": pending_agent["full_name"],
             "color": pending_agent["color"],
@@ -491,14 +485,13 @@ if st.session_state.processing:
         st.session_state.pending_agent = None
         st.rerun()
 
- 
 # ─── Conversation History Stream ──────────────────────────────────────────────
 if st.session_state.history:
     st.markdown("---")
     st.markdown("<h3 style='color: #111111; font-weight: 700;'>Conversation History</h3>", unsafe_allow_html=True)
- 
+
     history_list = list(reversed(st.session_state.history))
- 
+
     for idx, item in enumerate(history_list):
         st.markdown(
             f"<div style='background:#ffffff; border: 1px solid #dcd6cd; border-radius:10px; "
@@ -509,7 +502,7 @@ if st.session_state.history:
             f"</div>",
             unsafe_allow_html=True,
         )
- 
+
         st.markdown(
             f"<div style='width: min(1100px, 94%); margin-left: auto; margin-right: auto; display: flex; "
             f"justify-content: space-between; align-items: center; margin-top: 6px; padding: 0 4px;'>"
@@ -518,7 +511,7 @@ if st.session_state.history:
             f"</div>",
             unsafe_allow_html=True,
         )
- 
+
         # Response rendered INSIDE the card in a single st.markdown call.
         # (Splitting open-div / content / close-div across separate st.markdown
         # calls was the bug — each call gets sanitized independently, so the
@@ -527,4 +520,31 @@ if st.session_state.history:
             f'<div class="response-card">\n\n{item["response"]}\n\n</div>',
             unsafe_allow_html=True,
         )
- 
+
+        # ── Follow-up flow ──────────────────────────────────────────────────
+        # Only offer this on the most recent exchange (idx == 0 after reversal)
+        # and only when the agent's reply reads like a follow-up question.
+        is_latest = idx == 0
+        looks_like_question = item["response"].rstrip().endswith("?")
+        if is_latest and looks_like_question and not st.session_state.processing:
+            st.markdown(
+                '<p class="followup-hint">This looks like a follow-up question — '
+                'reply below and press Enter, or hit Continue.</p>',
+                unsafe_allow_html=True,
+            )
+            # st.form gives us the Enter-to-submit fallback for free: pressing
+            # Enter inside a form's text_input submits the form, same as
+            # clicking the button does.
+            with st.form(key=f"followup_form_{len(st.session_state.history)}", clear_on_submit=True):
+                followup_text = st.text_input(
+                    "Follow-up reply",
+                    label_visibility="collapsed",
+                    placeholder="Type your answer…",
+                )
+                followup_submitted = st.form_submit_button("Continue ➔", use_container_width=False)
+
+            if followup_submitted and followup_text.strip():
+                st.session_state.processing = True
+                st.session_state.pending_query = followup_text.strip()
+                st.session_state.pending_agent = AGENTS[selected_agent_label]
+                st.rerun()
