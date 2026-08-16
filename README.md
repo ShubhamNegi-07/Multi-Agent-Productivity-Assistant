@@ -92,3 +92,16 @@ venv\Scripts\activate
 # macOS / Linux
 source venv/bin/activate
 ```
+
+</details>
+
+<details>
+<summary><strong>3. Install dependencies</strong></summary>
+
+```bash
+pip install -r requirements.txt
+```
+</details>
+
+<details>
+<summary><strong>4. Configure API keys</strong></summary>
