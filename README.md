@@ -105,3 +105,22 @@ pip install -r requirements.txt
 
 <details>
 <summary><strong>4. Configure API keys</strong></summary>
+
+
+```bash
+cp .env.example .env
+```
+
+```env
+GEMINI_API_KEY=your_actual_gemini_key_here
+OPENWEATHER_API_KEY=your_actual_openweather_key_here
+```
+
+| Key | Source |
+|---|---|
+| `GEMINI_API_KEY` | [Google AI Studio](https://makersuite.google.com/app/apikey) |
+| `OPENWEATHER_API_KEY` | [OpenWeatherMap](https://openweathermap.org/api) (free tier) |
+</details>
+
+<details>
+<summary><strong>5. Run the app</strong></summary>
