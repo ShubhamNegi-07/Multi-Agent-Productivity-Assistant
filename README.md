@@ -92,7 +92,6 @@ venv\Scripts\activate
 # macOS / Linux
 source venv/bin/activate
 ```
-
 </details>
 
 <details>
@@ -105,7 +104,6 @@ pip install -r requirements.txt
 
 <details>
 <summary><strong>4. Configure API keys</strong></summary>
-
 
 ```bash
 cp .env.example .env
@@ -124,3 +122,112 @@ OPENWEATHER_API_KEY=your_actual_openweather_key_here
 
 <details>
 <summary><strong>5. Run the app</strong></summary>
+
+```bash
+streamlit run app.py
+```
+
+Streamlit's default is `http://localhost:8501`. If that port is taken, it auto-selects the next one and prints the actual URL — check the terminal rather than assuming a fixed port.
+</details>
+
+## 💬 Usage
+
+Pick an agent from the sidebar, type a question in plain language, and the agent routes it through its tools to Gemini for a formatted response.
+
+## 🧭 Example Queries
+
+<table>
+<tr><td>
+
+**🌤️ Weather**
+- "What is the weather in Hyderabad?"
+- "Give me a 3-day forecast for Mumbai."
+
+</td><td>
+
+**✈️ Travel**
+- "Plan a 3-day trip to Goa for 2 people."
+- "Suggest transport for 650 km travel."
+
+</td></tr>
+<tr><td>
+
+**💰 Finance**
+- "Calculate EMI for 5 lakhs at 9% for 5 years."
+- "Split my ₹60,000 salary using the 50/30/20 rule."
+
+</td><td>
+
+**📋 Productivity**
+- "Draft a sick leave email."
+- "Make a 7-day study plan for ML, 2 hrs/day."
+
+</td></tr>
+</table>
+
+## 🏗 Architecture
+
+```
+User input
+    │
+    ▼
+Streamlit UI (app.py)
+    │
+    ▼
+Selected agent (agents/)
+    │
+    ▼
+LangChain tool calling
+    │
+    ▼
+Tool execution (tools/) ── external APIs / calculation logic
+    │
+    ▼
+Gemini formats the response
+    │
+    ▼
+Response displayed in UI
+```
+
+## 🧰 Technologies
+
+| | Technology | Purpose |
+|:---:|---|---|
+| 🦜 | LangChain | Agent creation, tool binding |
+| ✨ | Gemini 1.5 Flash | LLM reasoning & generation |
+| 🌦 | OpenWeatherMap | Real-time weather data |
+| 🎈 | Streamlit | Web frontend |
+| 🔐 | python-dotenv | Environment variable management |
+
+## 🤝 Contributing
+
+<!-- PLACEHOLDER: no process existed in the original README. -->
+
+1. Fork the repo
+2. `git checkout -b feature/your-feature`
+3. Commit with a clear message
+4. Open a pull request describing the change
+
+## 📜 Changelog
+
+<!-- PLACEHOLDER -->
+
+| Version | Date | Changes |
+|---|---|---|
+| Unreleased | — | Initial documented release |
+
+## 📄 License
+
+> ⚠️ **Not actually specified yet.** "Feel free to extend" isn't a license — it says nothing about attribution, liability, or redistribution. Pick one (MIT is the common default for projects like this) and add a `LICENSE` file before calling this production-ready.
+
+## 📬 Contact
+
+<!-- PLACEHOLDER: maintainer name / email / issue tracker link -->
+
+---
+
+<div align="center">
+
+Built with LangChain, Gemini, and Streamlit.
+
+</div>
