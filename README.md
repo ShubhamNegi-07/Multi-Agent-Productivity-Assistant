@@ -32,3 +32,37 @@ Four specialized agents, each scoped to its own tool set via LangChain tool call
 | 📋 | **Productivity** | Work & planning | `create_todo_list` · `generate_meeting_agenda` · `draft_email` · `study_plan` |
 
 </div>
+
+## 🚀 Features
+
+- 🧩 Modular agents, each with an isolated, domain-specific toolset
+- 🌐 Real-time data via OpenWeatherMap
+- 🧠 LLM reasoning and response generation via Gemini
+- 💬 Streamlit chat interface
+
+## 📂 Project Structure
+
+```
+Main-multi-agent/
+│
+├── agents/
+│   ├── weather_agent.py        # Weather agent
+│   ├── travel_agent.py         # Travel planning agent
+│   ├── finance_agent.py        # Financial calculation agent
+│   └── productivity_agent.py   # Productivity tools agent
+│
+├── tools/
+│   ├── weather_tool.py         # OpenWeatherMap API integration
+│   ├── travel_tool.py          # Travel calculation tools
+│   ├── finance_tool.py         # EMI and interest formula tools
+│   └── productivity_tool.py    # Planning and drafting tools
+│
+├── utils/
+│   └── llm.py                  # Gemini LLM initialization
+│
+├── app.py                      # Streamlit UI
+├── .env                        # API keys (not committed)
+├── .env.example                # Template for .env
+├── requirements.txt            # Python dependencies
+└── README.md
+```
