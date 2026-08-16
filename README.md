@@ -66,3 +66,29 @@ Main-multi-agent/
 ├── requirements.txt            # Python dependencies
 └── README.md
 ```
+
+## 🛠 Setup
+
+<details>
+<summary><strong>1. Clone the repository</strong></summary>
+
+```bash
+git clone <repository-url>
+cd Main-multi-agent
+```
+</details>
+
+<details>
+<summary><strong>2. Create a virtual environment</strong></summary>
+
+```bash
+python -m venv venv
+```
+
+```bash
+# Windows
+venv\Scripts\activate
+
+# macOS / Linux
+source venv/bin/activate
+```
