@@ -25,6 +25,12 @@ def calculate_emi(principal: float, annual_rate: float, years: int) -> str:
     if months <= 0:
         return "Invalid input: loan tenure must be greater than zero."
 
+    if principal <= 0:
+        return "Invalid input: loan amount must be greater than zero."
+
+    if annual_rate < 0:
+        return "Invalid input: interest rate cannot be negative."
+
     if monthly_rate == 0:
         emi = principal / months
     else:
@@ -62,6 +68,12 @@ def simple_interest(principal: float, rate: float, time: float) -> str:
     if time < 0:
         return "Invalid input: time cannot be negative."
 
+    if principal < 0:
+        return "Invalid input: principal cannot be negative."
+
+    if rate < 0:
+        return "Invalid input: interest rate cannot be negative."
+
     si = (principal * rate * time) / 100
     amount = principal + si
 
@@ -88,6 +100,12 @@ def compound_interest(principal: float, rate: float, time: float, n: int = 12) -
     """
     if time < 0 or n <= 0:
         return "Invalid input: time must be non-negative and compounding frequency must be greater than zero."
+
+    if principal < 0:
+        return "Invalid input: principal cannot be negative."
+
+    if rate < 0:
+        return "Invalid input: interest rate cannot be negative."
 
     r = rate / 100
     amount = principal * math.pow((1 + r / n), n * time)
