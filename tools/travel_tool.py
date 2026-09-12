@@ -19,6 +19,15 @@ def estimate_trip_budget(destination: str, days: int, people: int = 1) -> str:
     """
     destination = destination.strip().title()
 
+    if not destination:
+        return "Invalid input: please provide a destination."
+
+    if days <= 0:
+        return "Invalid input: number of travel days must be greater than zero."
+
+    if people <= 0:
+        return "Invalid input: number of travellers must be at least one."
+
     hotel_per_day = 1800
     food_per_day = 700
     local_transport_per_day = 500
@@ -44,6 +53,9 @@ def suggest_transport(distance_km: int) -> str:
     Input:
     - distance_km: travel distance in km
     """
+    if distance_km <= 0:
+        return "Invalid input: distance must be greater than zero."
+
     if distance_km <= 80:
         return (
             f"For a distance of {distance_km} km, car, cab, or bike would be convenient."
@@ -72,6 +84,9 @@ def travel_checklist(destination: str) -> str:
     """
     destination = destination.strip().title()
 
+    if not destination:
+        return "Invalid input: please provide a destination."
+
     checklist = [
         "Valid ID cards and tickets",
         "Mobile charger and power bank",
@@ -95,6 +110,9 @@ def best_time_to_visit(destination: str) -> str:
     - destination: destination city/place
     """
     destination_clean = destination.strip().lower()
+
+    if not destination_clean:
+        return "Invalid input: please provide a destination."
 
     season_map = {
         "chennai": "The best time to visit Chennai is from November to February, when the weather is relatively pleasant.",
