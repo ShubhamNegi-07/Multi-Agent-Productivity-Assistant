@@ -1,2 +1,37 @@
+# ============================================================
+#  Assistant Hub — Streamlit theme tokens
+# ------------------------------------------------------------
+#  These make Streamlit's *native* widgets match the chat UI so
+#  app.py's CSS block only has to style the bespoke parts
+#  (bubbles, agent nav, composer) instead of fighting the base
+#  theme with !important on every rule.
+#
+#  Was base="dark" while the CSS forced a light cream canvas —
+#  that mismatch is why the old stylesheet needed so many
+#  colour overrides.
+# ============================================================
+
 [theme]
-base="dark"
+base = "light"
+
+# Ink-black primary keeps the accent budget free for the four
+# agent colours, which are the only real saturation in the UI.
+primaryColor = "#1F1E1C"
+
+backgroundColor = "#F7F6F3"
+secondaryBackgroundColor = "#EFEDE7"
+textColor = "#191817"
+borderColor = "#E4E0D7"
+linkColor = "#0F766E"
+
+baseRadius = "0.75rem"
+buttonRadius = "0.625rem"
+showWidgetBorder = true
+showSidebarBorder = true
+
+font = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+
+[theme.sidebar]
+backgroundColor = "#F1EFE9"
+secondaryBackgroundColor = "#E7E4DC"
+borderColor = "#E0DCD2"
