@@ -145,6 +145,20 @@ def study_plan(subject: str, hours_per_day: float) -> str:
         subject: The subject or topic to study (e.g., 'Python', 'Machine Learning').
         hours_per_day: Daily study hours available (e.g., 2.0, 3.5).
     """
+    subject = subject.strip()
+
+    if not subject:
+        return "Invalid input: please tell me which subject to plan for."
+
+    if hours_per_day <= 0:
+        return "Invalid input: study hours per day must be greater than zero."
+
+    if hours_per_day > 14:
+        return (
+            "Invalid input: more than 14 study hours a day is not a plan you can "
+            "repeat. Give me a number you can sustain daily."
+        )
+
     total_hours = hours_per_day * 7
     start_date  = datetime.now()
 

@@ -11,6 +11,7 @@ from tools.productivity_tool import (
     draft_email,
     study_plan,
 )
+from utils.agent_runtime import run_agent
 from utils.llm import get_gemini
 
 
@@ -44,40 +45,6 @@ def get_productivity_agent():
     return agent
 
 
-def _extract_text_from_result(result: dict) -> str:
-    """Extract the last readable assistant response from the agent result."""
-    messages = result.get("messages", [])
-    if not messages:
-        return "No response generated."
-
-    for msg in reversed(messages):
-        content = getattr(msg, "content", None)
-
-        if isinstance(content, str) and content.strip():
-            return content.strip()
-
-        if isinstance(content, list):
-            text_parts = []
-            for item in content:
-                if isinstance(item, dict) and item.get("type") == "text" and item.get("text"):
-                    text_parts.append(item["text"])
-                elif isinstance(item, str) and item.strip():
-                    text_parts.append(item.strip())
-
-            if text_parts:
-                return "\n".join(text_parts).strip()
-
-    return "No readable response generated."
-
-
 def run_productivity_agent(query: str) -> str:
     """Run the Productivity Agent with the given user query."""
-    agent = get_productivity_agent()
-    result = agent.invoke(
-        {
-            "messages": [
-                {"role": "user", "content": query}
-            ]
-        }
-    )
-    return _extract_text_from_result(result)
+    return run_agent(get_productivity_agent, query, "Productivity Agent")
