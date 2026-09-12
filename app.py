@@ -112,6 +112,32 @@ AGENTS = {
             "How much water and sleep should I be getting at my weight?",
         ],
     },
+    "recipe": {
+        "id": "recipe",
+        "name": "Recipe Agent",
+        "icon": "🍳",
+        "color": "#BE123C",
+        "greeting": "What's cooking, Creator",
+        "tagline": "Scales the recipe so dinner still works.",
+        "examples": [
+            "Scale this for 6 people: 2 cups flour, 1/2 tsp salt, 1 1/2 cup milk.",
+            "How many grams is 2 cups of besan?",
+            "I have eggs, tomato and onion — what can I make for breakfast?",
+        ],
+    },
+    "study": {
+        "id": "study",
+        "name": "Study Agent",
+        "icon": "📚",
+        "color": "#4D7C0F",
+        "greeting": "Let's get you ready, Creator",
+        "tagline": "Revision timed so it actually sticks.",
+        "examples": [
+            "My exam is in 14 days — split 3 hrs/day across Maths, Physics and Chemistry.",
+            "I'm at 72% with 60% of the marks done. What do I need on the final to hit 80%?",
+            "Build me a spaced-repetition schedule for Linear Algebra before 15 October.",
+        ],
+    },
 }
 
 # How much prior conversation to hand back to a (stateless) agent.
@@ -408,7 +434,7 @@ button[data-testid="stSidebarCollapseButton"]:hover,
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
 [data-testid="stSidebar"] { padding-top: 1.05rem; }
 
-/* Streamlit's default 1rem gap between elements made a six-agent list scroll
+/* Streamlit's default 1rem gap between elements made the agent list scroll
    for no reason. Tighten it once here and let each label's own margin do the
    grouping, so spacing is set in one place instead of fought per widget. */
 [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.3rem; }
@@ -600,7 +626,7 @@ st.markdown(BASE_CSS, unsafe_allow_html=True)
 # The *selected* agent is styled here too rather than through Streamlit's
 # `type="primary"`, which paints a flat black slab from theme.primaryColor and
 # ignores the agent's own colour entirely. Emitting the rule for whichever id is
-# active keeps all six rows one shape and lets the accent carry the state.
+# active keeps every row one shape and lets the accent carry the state.
 _nav_css = ["<style>"]
 for _a in AGENTS.values():
     _sel = f'[data-testid="stSidebar"] .st-key-nav_{_a["id"]} button'
@@ -654,6 +680,12 @@ def load_agent(agent_key: str):
     elif agent_key == "health":
         from agents.health_agent import run_health_agent
         return run_health_agent
+    elif agent_key == "recipe":
+        from agents.recipe_agent import run_recipe_agent
+        return run_recipe_agent
+    elif agent_key == "study":
+        from agents.study_agent import run_study_agent
+        return run_study_agent
     else:
         raise ValueError(f"Unknown agent key: {agent_key}")
 
