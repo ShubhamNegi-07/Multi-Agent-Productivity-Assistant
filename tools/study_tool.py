@@ -130,9 +130,12 @@ def spaced_repetition_schedule(topic: str, exam_date: str, start_date: str) -> s
 
 
 @tool
-def study_plan(subjects: str, days_until_exam: int, hours_per_day: float) -> str:
+def exam_revision_plan(subjects: str, days_until_exam: int, hours_per_day: float) -> str:
     """
-    Split available study time across subjects, day by day.
+    Split available study time across several subjects before an exam, day by day.
+
+    Use this for multi-subject revision against a deadline. For a single
+    subject with no exam date, the Productivity Agent's study_plan is simpler.
 
     Args:
         subjects: Subjects to cover, comma separated. Add ':weight' to give
