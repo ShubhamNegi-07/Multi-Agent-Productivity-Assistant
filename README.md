@@ -1,180 +1,186 @@
-# Multi-Agent Productivity Assistant
-
-An AI productivity workspace with eight specialist agents for weather,
-travel, finance, productivity, careers, health, recipes, and study planning.
-The project is organized as a decoupled full-stack monorepo: a Python
-FastAPI service provides the agent API, while a React/Vite application provides
-the interactive Assistant Hub.
-
-## Project overview
-
-The assistant routes each request to a domain-specific LangChain agent. Each
-agent has a focused system prompt and an isolated set of tools. Gemini
-generates the final natural-language response, while deterministic tools handle
-calculations, structured planning, and external data access.
-
-The current web workflow is:
+<div align="center">
 
 ```text
-React/Vite Assistant Hub
-        |
-        | HTTP: /api/agents, /api/chat
-        v
-FastAPI backend
-        |
-        v
-Selected LangChain agent
-        |
-        +--> Domain tools and OpenWeatherMap
-        |
-        v
-Gemini response
+███╗   ███╗██╗   ██╗██╗  ████████╗██╗    █████╗  ██████╗ ███████╗███╗   ██╗████████╗
+████╗ ████║██║   ██║██║  ╚══██╔══╝██║   ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝
+██╔████╔██║██║   ██║██║     ██║   ██║   ███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║
+██║╚██╔╝██║██║   ██║██║     ██║   ██║   ██╔══██╗██║   ██║██╔══╝  ██║╚██╗██║   ██║
+██║ ╚═╝ ██║╚██████╔╝███████╗██║   ██║   ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║
+╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝
 ```
 
-## Decoupled architecture
+# Multi-Agent Productivity Assistant
 
-### Backend: FastAPI and LangChain
+**A modern, decoupled SaaS workspace powered by FastAPI, LangChain, Google Gemini, and React (shadcn/ui + Tailwind CSS).**
 
-The backend exposes:
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688)
+![React](https://img.shields.io/badge/React-18.x-61DAFB)
+![Vite](https://img.shields.io/badge/Vite-6.x-646CFF)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-v3-38B2AC)
+![LangChain](https://img.shields.io/badge/LangChain-1.x-1C3C3C)
+![Gemini](https://img.shields.io/badge/LLM-Gemini-8E75B2)
 
-- `GET /api/agents` — returns the eight available agent summaries.
-- `POST /api/chat` — routes a message to the selected agent and accepts
-  conversation history and a memory preference.
+[Overview](#-overview) · [Features](#-features) · [Architecture](#-architecture) · [Setup](#-setup) · [Testing](#-testing)
 
-The API validates request payloads with Pydantic, applies CORS for local Vite
-and Next.js development servers, and translates agent failures into explicit
-HTTP errors.
+</div>
 
-### Frontend: React, Vite, and shadcn-style components
+---
 
-The frontend contains the Assistant Hub shell:
+## ✨ Overview
 
-- Specialist navigation sidebar
-- Agent header and status indicator
-- Empty state with prompt suggestions
-- User and assistant message transcript
-- Copy-response action
-- Auto-resizing chat composer
-- Conversation memory toggle
+Multi-Agent Productivity Assistant is a decoupled full-stack workspace that
+routes user prompts to focused AI specialists. Each specialist combines a
+domain prompt with a small, testable toolset. Gemini handles reasoning and
+response composition; deterministic Python tools handle calculations,
+validation, planning, and external data access.
 
-The UI uses TypeScript, Tailwind CSS 3, Lucide icons, and local
-shadcn-compatible primitives. The API client reads `VITE_API_BASE_URL` and
-defaults to `http://localhost:8001`.
+## 🚀 Features
 
-## Specialist agents
+- **Eight specialist agents** with isolated prompts and domain tools.
+- **FastAPI orchestration API** with typed Pydantic request and response models.
+- **React/Vite Assistant Hub** with responsive navigation, transcript, composer,
+  memory toggle, prompt suggestions, and copy actions.
+- **Tailwind and shadcn-style design system** using a slate/indigo palette.
+- **Conversation history support** with bounded context passed to agents.
+- **Explicit error handling** that surfaces actionable failures instead of
+  silent success-shaped fallbacks.
+- **Regression coverage** for rendering safety and tool input validation.
 
-| Agent | Focus | Example capabilities |
+## 🧭 Specialist matrix
+
+| Agent | Domain | Core tools |
 | --- | --- | --- |
-| Weather | Live weather | Current conditions and forecasts |
-| Travel | Trip planning | Budgets, transport, checklists, timing |
-| Finance | Personal finance maths | EMI, interest, budgeting, terminology |
-| Productivity | Work organization | To-do lists, agendas, emails, study plans |
-| Career | Career development | Skill gaps, outreach, resume checklists |
-| Health | General wellness | BMI, calorie estimates, training, hydration |
-| Recipe | Cooking assistance | Recipe scaling, conversions, meal ideas |
-| Study | Revision planning | Grades, Pomodoro sessions, flashcards, revision |
+| 🌤️ Weather | Live conditions and forecasts | `get_current_weather`, `get_weather_forecast` |
+| ✈️ Travel | Trip planning | `estimate_trip_budget`, `suggest_transport`, `travel_checklist`, `best_time_to_visit` |
+| 💰 Finance | Financial calculations | `calculate_emi`, `simple_interest`, `compound_interest`, `monthly_budget_split` |
+| 📋 Productivity | Work and planning | `create_todo_list`, `generate_meeting_agenda`, `draft_email`, `study_plan` |
+| 💼 Career | Career development | `skill_gap_analysis`, `draft_outreach`, `resume_checklist` |
+| 🏃 Health | General wellness | `bmi_report`, `calorie_targets`, `workout_split`, `hydration_and_sleep` |
+| 🍳 Recipe | Cooking assistance | `scale_recipe`, `convert_kitchen_measure`, `cooking_times`, `shopping_list` |
+| 📚 Study | Revision and exams | `grade_needed`, `pomodoro_plan`, `flashcards_from_notes`, `exam_revision_plan` |
 
-Health and finance features provide general informational guidance, not
-medical or regulated financial advice.
+> Health and finance responses are general informational guidance, not medical
+> diagnosis or regulated financial advice.
 
-## Tech stack
+## 🏗 Architecture
 
-### Backend
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as React/Vite Assistant Hub
+    participant API as FastAPI :8001
+    participant Agent as Selected LangChain Agent
+    participant Tool as Domain Tools
+    participant Gemini as Google Gemini
 
-- Python 3.10+
-- FastAPI and Uvicorn
-- LangChain 1.x and LangGraph 1.x
-- Gemini through `langchain-google-genai`
-- Pydantic request and response models
-- `python-dotenv` for local environment configuration
-- `requests` for OpenWeatherMap access
+    User->>UI: Enter prompt and select agent
+    UI->>API: POST /api/chat with history
+    API->>Agent: Route message and context
+    Agent->>Tool: Execute deterministic or external tool
+    Tool-->>Agent: Structured result
+    Agent->>Gemini: Compose grounded response
+    Gemini-->>Agent: Assistant message
+    Agent-->>API: Response and elapsed time
+    API-->>UI: ChatResponse JSON
+    UI-->>User: Render transcript card
+```
 
-### Frontend
+### API contract
 
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS 3
-- shadcn-style UI primitives
-- Radix UI packages
-- Lucide React icons
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/agents` | List available specialists |
+| `POST` | `/api/chat` | Route a message with optional history and memory |
 
-## Directory layout
+Example request:
+
+```json
+{
+  "agent_id": "productivity",
+  "message": "Create a plan for my workday",
+  "history": [],
+  "remember": true
+}
+```
+
+## 🧰 Technology matrix
+
+| Layer | Technologies | Responsibility |
+| --- | --- | --- |
+| Runtime | Python 3.10+, Node.js | Application execution |
+| API | FastAPI, Uvicorn, Pydantic | HTTP boundary and validation |
+| Agents | LangChain 1.x, LangGraph 1.x | Tool calling and orchestration |
+| Model | Gemini via `langchain-google-genai` | Reasoning and response generation |
+| Data tools | Requests, OpenWeatherMap | External weather access |
+| UI | React 18, TypeScript, Vite | Client application |
+| Design | Tailwind CSS 3, Radix, Lucide | Styling and interaction primitives |
+
+## 📂 Project structure
 
 ```text
 Multi-Agent-Productivity-Assistant/
 ├── backend/
-│   ├── agents/              # Eight specialist LangChain agents
-│   ├── tools/               # Domain tools used by agents
+│   ├── agents/              # Eight specialist agent definitions
+│   ├── tools/               # Domain-specific deterministic tools
 │   ├── utils/
-│   │   ├── agent_runtime.py # Shared invocation and error handling
+│   │   ├── agent_runtime.py # Shared invocation and error translation
 │   │   └── llm.py           # Gemini initialization
-│   ├── main.py              # FastAPI app and API routes
+│   ├── main.py              # FastAPI app and routes
 │   ├── rendering.py         # Safe response rendering helper
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
 │   │   ├── components/      # Assistant, chat, navigation, and UI components
-│   │   ├── lib/api.ts       # Typed backend API client
+│   │   ├── lib/api.ts       # Typed API client
 │   │   ├── pages/           # AssistantPage
-│   │   └── styles.css       # Tailwind entrypoint and theme tokens
+│   │   ├── main.tsx         # React entrypoint
+│   │   └── styles.css       # Tailwind directives and theme tokens
+│   ├── index.html
 │   ├── package.json
 │   ├── tailwind.config.cjs
 │   ├── tsconfig.json
 │   └── vite.config.ts
-├── tests/
-│   └── test_regressions.py
+├── tests/test_regressions.py
 ├── .env.example
 ├── .gitignore
 └── README.md
 ```
 
-The root `.env` is intentionally ignored and must never be committed.
+## 🛠 Setup
 
-## Setup and installation
-
-### 1. Clone and enter the repository
+### 1. Clone the repository
 
 ```powershell
 git clone https://github.com/ShubhamNegi-07/Multi-Agent-Productivity-Assistant.git
 cd Multi-Agent-Productivity-Assistant
 ```
 
-### 2. Configure backend environment variables
-
-Copy the template:
+### 2. Configure environment variables
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and set:
+Set the values in `.env`:
 
 ```dotenv
 GEMINI_API_KEY="your_gemini_api_key"
 OPENWEATHER_API_KEY="your_openweathermap_key"
 ```
 
-`GEMINI_API_KEY` is required for agent responses. The weather agent also
-requires `OPENWEATHER_API_KEY` for live weather data.
+Never commit `.env`. It is excluded by the root `.gitignore`.
 
-### 3. Install backend dependencies
-
-Create and activate a virtual environment:
+### 3. Install and run the backend
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r backend\requirements.txt
-```
-
-Start the backend on the configured development port:
-
-```powershell
 python -m uvicorn backend.main:app --reload --port 8001
 ```
 
-The API is available at `http://localhost:8001`.
+The API is served at `http://localhost:8001`.
 
 ### 4. Install and run the frontend
 
@@ -186,48 +192,60 @@ npm install
 npm run dev
 ```
 
-The Vite application is normally available at
-`http://localhost:5173`. The frontend defaults to the backend at port 8001.
-To override it:
+The Vite application is served at `http://localhost:5173`. The API client
+defaults to `http://localhost:8001`; override it when needed:
 
 ```powershell
 $env:VITE_API_BASE_URL = "http://localhost:8001"
 npm run dev
 ```
 
-## Testing and verification
+## 🧪 Testing
 
-Run the backend regression suite from the repository root:
+Run the backend regression suite:
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
-Compile the key Python modules:
+Compile Python modules:
 
 ```powershell
-python -m py_compile backend\main.py tests\test_regressions.py
+python -m compileall -q backend tests
 ```
 
-Build the frontend:
+Build and type-check the frontend:
 
 ```powershell
 cd frontend
 npm run build
 ```
 
-Useful smoke checks:
+Smoke-test the running services:
 
 ```powershell
 Invoke-WebRequest http://localhost:8001/api/agents
 Invoke-WebRequest http://localhost:5173
 ```
 
-## Development notes
+## 🔐 Security and development notes
 
-- Keep secrets in `.env`; never commit them.
-- Keep backend imports package-qualified with `backend.*`.
-- Add new agent tools under `backend/tools/` and register them in the
-  corresponding agent module.
-- Preserve regression coverage when changing validation or rendering behavior.
-- The frontend uses the `@/*` TypeScript alias for `frontend/src/*`.
+- Keep API keys only in `.env`; do not paste secrets into source files or
+  commits.
+- Keep Python imports package-qualified with `backend.*`.
+- Add new tools under `backend/tools/` and register them with one agent.
+- Preserve regression tests when changing validation or response rendering.
+- The frontend `@/*` alias resolves to `frontend/src/*`.
+
+## 👤 Author
+
+**ShubhamNegi-07**
+
+- GitHub: [@ShubhamNegi-07](https://github.com/ShubhamNegi-07)
+- Project: [Multi-Agent-Productivity-Assistant](https://github.com/ShubhamNegi-07/Multi-Agent-Productivity-Assistant)
+
+<div align="center">
+
+Made with Python, TypeScript, LangChain, Gemini, and a lot of deliberate tooling.
+
+</div>

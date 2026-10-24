@@ -1,5 +1,12 @@
 from langchain.agents import create_agent
 
+from backend.tools.recipe_tool import (
+    convert_kitchen_measure,
+    cooking_times,
+    meal_ideas_from_ingredients,
+    scale_recipe,
+    shopping_list,
+)
 from backend.utils.agent_runtime import run_agent
 from backend.utils.llm import get_gemini
 
@@ -14,7 +21,13 @@ ingredients or serving information rather than inventing quantities.
 def get_recipe_agent():
     return create_agent(
         model=get_gemini(temperature=0.5),
-        tools=[],
+        tools=[
+            scale_recipe,
+            convert_kitchen_measure,
+            meal_ideas_from_ingredients,
+            cooking_times,
+            shopping_list,
+        ],
         system_prompt=SYSTEM_PROMPT,
     )
 

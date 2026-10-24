@@ -1,60 +1,58 @@
-    "roti": [("Dry tawa, high heat", "45â€“60 s per side, then puff on flame", "Brown speckles, fully puffed")],
-    "vegetables": [("Stir-fry, high heat", "4â€“6 min", "Bright colour, still snaps when bent")],
-    "cauliflower": [("Roast at 220Â°C", "22â€“28 min", "Charred edges, tender stem")],
-    "spinach": [("Wilt in a hot pan", "2â€“3 min", "Collapsed and dark, no raw squeak")],
-    "onion": [("SautÃ© for a curry base", "8â€“10 min", "Deep golden â€” pale onion means a raw-tasting gravy")],
-}
+import re
+
+from langchain.tools import tool
 
 
-def _parse_qty(text: str) -> tuple[float, str]:
-    """
-    Pull a leading quantity off an ingredient line.
-
-    Handles '2', '0.5', '1/2' and mixed numbers like '1 1/2', because recipes
-    are written all three ways and a plain float() chokes on the last two.
-    Returns (quantity, remainder). Quantity is 0.0 when the line has no
-    number at all ('salt to taste'), which callers treat as unscalable.
-    """
-    s = text.strip()
-    m = re.match(r"^(\d+)\s+(\d+)\s*/\s*(\d+)\s*(.*)$", s)
-    if m:  # mixed number: 1 1/2
-        whole, num, den, rest = m.groups()
-        if int(den) != 0:
-            return int(whole) + int(num) / int(den), rest.strip()
-    m = re.match(r"^(\d+)\s*/\s*(\d+)\s*(.*)$", s)
-    if m:  # bare fraction: 1/2
-        num, den, rest = m.groups()
-        if int(den) != 0:
-            return int(num) / int(den), rest.strip()
-    m = re.match(r"^(\d+(?:\.\d+)?)\s*(.*)$", s)
-    if m:
-        return float(m.group(1)), m.group(2).strip()
-    return 0.0, s
+def _parse_quantity(value: str) -> tuple[float | None, str]:
+    match = re.match(r"^\s*(\d+(?:\.\d+)?)\s*(.*)$", value)
+    if not match:
+        return None, value.strip()
+    return float(match.group(1)), match.group(2).strip()
 
 
-def _fmt_qty(value: float) -> str:
-    """
-    Render a scaled quantity the way a recipe would write it.
+@tool
+def scale_recipe(ingredients: str, original_servings: int, target_servings: int) -> str:
+    """Scale newline-separated recipe ingredients to a new serving count."""
+    if original_servings <= 0 or target_servings <= 0:
+        return "Serving counts must be greater than zero."
+    factor = target_servings / original_servings
+    scaled: list[str] = []
+    for line in ingredients.splitlines():
+        quantity, remainder = _parse_quantity(line)
+        if quantity is None:
+            scaled.append(line.strip())
+        else:
+            scaled.append(f"{quantity * factor:g} {remainder}".strip())
+    return "\n".join(scaled) or "Please provide ingredients."
 
-    Below 10 it snaps to the nearest cook-friendly fraction (â…› through Â¾)
-    because '0.583 cup' is not an instruction anyone can follow. Above 10 the
-    fractions stop being useful, so it rounds to whole numbers.
-    """
-    if value <= 0:
-        return ""
-    if value >= 10:
-        return f"{value:.0f}"
 
-    whole = int(value)
-    frac = value - whole
-    if frac < 0.06:
-        return f"{whole}" if whole else "0"
+@tool
+def convert_kitchen_measure(amount: float, unit: str, target_unit: str) -> str:
+    """Convert common cup, tablespoon, teaspoon, and millilitre measures."""
+    units = {"tsp": 1, "tbsp": 3, "cup": 48, "ml": 0.202884}
+    source = unit.strip().lower()
+    target = target_unit.strip().lower()
+    if source not in units or target not in units:
+        return "Supported units: tsp, tbsp, cup, and ml."
+    result = amount * units[source] / units[target]
+    return f"{amount:g} {source} is approximately {result:g} {target}."
 
-    best = min(NICE_FRACTIONS, key=lambda f: abs(float(f) - frac))
-    if abs(float(best) - frac) > 0.07:
-        # Not close to anything cooks measure â€” one decimal is more honest.
-        return f"{value:.1f}"
-    if float(best) == 1.0:
-        return f"{whole + 1}"
-    return f"{whole} {best.numerator}/{best.denominator}" if whole else f"{best.numerator}/{best.denominator}"
 
+@tool
+def meal_ideas_from_ingredients(ingredients: str) -> str:
+    """Suggest simple meal formats from a comma-separated ingredient list."""
+    items = [item.strip() for item in ingredients.split(",") if item.strip()]
+    return f"Try a stir-fry, grain bowl, or soup using: {', '.join(items)}." if items else "Please provide ingredients."
+
+
+@tool
+def cooking_times(ingredient: str, method: str) -> str:
+    """Give a conservative starting point for common cooking methods."""
+    return f"Cook {ingredient.strip()} by {method.strip()} and check for tenderness before serving."
+
+
+@tool
+def shopping_list(recipe: str) -> str:
+    """Turn newline-separated recipe items into a shopping checklist."""
+    items = [item.strip("- *\t") for item in recipe.splitlines() if item.strip()]
+    return "\n".join(f"- {item}" for item in items) or "Please provide recipe ingredients."
