@@ -1,0 +1,35 @@
+# ============================================================
+#  Multi-Agent Assistant — Python Dependencies
+# ============================================================
+#
+# Versions are pinned to the major releases this project is actually
+# developed and tested against. The upper bounds are deliberate:
+# `langchain.agents.create_agent` — which every agent in agents/ is built
+# on — is a LangChain 1.x API and does not exist in 0.x, so an unbounded
+# `langchain>=0.2` floor could resolve to a version where all eight agents
+# fail to import.
+#
+# Verified on Python 3.14.3. Requires 3.10+.
+
+# Core LangChain framework
+langchain>=1.2,<2
+langchain-core>=1.2,<2
+langchain-google-genai>=4.2,<5
+
+# Agent runtime. Not optional: create_agent builds a LangGraph graph under
+# the hood, so this must be present even though nothing imports it directly.
+langgraph>=1.1,<2
+
+# FastAPI backend
+fastapi>=0.115,<1
+uvicorn[standard]>=0.34,<1
+
+# HTTP requests (OpenWeatherMap calls in tools/weather_tool.py)
+requests>=2.32,<3
+
+# Environment variable management
+python-dotenv>=1.0,<2
+
+# Note: google-generativeai is intentionally not listed. langchain-google-genai
+# 4.x ships its own client layer, and nothing in this project imports
+# google.generativeai directly.
