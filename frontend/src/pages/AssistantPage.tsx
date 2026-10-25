@@ -21,8 +21,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 function createMessageId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
-
-export function AssistantPage() {
+
+const MAX_DISPLAY_MESSAGES = 50;
+
+export function AssistantPage() {
   const [activeAgent, setActiveAgent] = useState<Agent | null>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -30,6 +32,7 @@ export function AssistantPage() {
   const [remember, setRemember] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const requestController = useRef<AbortController | null>(null);
+  const isSubmitting = useRef(false);
 
   useEffect(() => {
     return () => requestController.current?.abort();
@@ -50,8 +53,9 @@ export function AssistantPage() {
   const handleSendMessage = useCallback(async () => {
     const message = draft.trim();
     const agent = activeAgent;
-
-    if (!message || !agent || isProcessing) return;
+
+    if (!message || !agent || isProcessing || isSubmitting.current) return;
+    isSubmitting.current = true;
 
     const priorHistory = history;
     const userMessage: DisplayMessage = {
@@ -61,7 +65,9 @@ export function AssistantPage() {
     };
 
     setDraft("");
-    setMessages((current) => [...current, userMessage]);
+    setMessages((current) =>
+      [...current, userMessage].slice(-MAX_DISPLAY_MESSAGES),
+    );
     setIsProcessing(true);
 
     const controller = new AbortController();
@@ -75,49 +81,61 @@ export function AssistantPage() {
           message,
           history: priorHistory,
           remember,
-        },
-        controller.signal,
-      );
-
-      setMessages((current) => [
-        ...current,
-        {
-          id: createMessageId(),
-          role: "assistant",
-          agent: response.agent.name,
-          content: response.message,
-          elapsedMs: response.elapsed_ms || Math.round(performance.now() - startedAt),
-        },
-      ]);
+        },
+        controller.signal,
+      );
+
+      const assistantMessage: DisplayMessage = {
+        id: createMessageId(),
+        role: "assistant",
+        agent: response.agent.name,
+        content: response.message,
+        elapsedMs:
+          response.elapsed_ms || Math.round(performance.now() - startedAt),
+      };
+      setMessages((current) =>
+        [...current, assistantMessage].slice(-MAX_DISPLAY_MESSAGES),
+      );
     } catch (reason: unknown) {
       if (reason instanceof DOMException && reason.name === "AbortError") {
         return;
       }
 
-      const detail =
-        reason instanceof ApiError
-          ? reason.message
-          : "The assistant could not complete that request. Please try again.";
-
-      setMessages((current) => [
-        ...current,
-        {
-          id: createMessageId(),
-          role: "assistant",
-          agent: agent.name,
-          content: detail,
-          elapsedMs: Math.round(performance.now() - startedAt),
-          isError: true,
-        },
-      ]);
-    } finally {
-      if (requestController.current === controller) {
+      const detail =
+        reason instanceof ApiError
+          ? reason.message
+          : "The assistant could not complete that request. Please try again.";
+
+      const errorMessage: DisplayMessage = {
+        id: createMessageId(),
+        role: "assistant",
+        agent: agent.name,
+        content: detail,
+        elapsedMs: Math.round(performance.now() - startedAt),
+        isError: true,
+      };
+      setMessages((current) =>
+        [...current, errorMessage].slice(-MAX_DISPLAY_MESSAGES),
+      );
+    } finally {
+      isSubmitting.current = false;
+      if (requestController.current === controller) {
         requestController.current = null;
         setIsProcessing(false);
       }
     }
   }, [activeAgent, draft, history, isProcessing, remember]);
-
+
+  const handleAgentChange = useCallback(
+    (agent: Agent) => {
+      if (isProcessing || agent.id === activeAgent?.id) return;
+      setMessages([]);
+      setDraft("");
+      setActiveAgent(agent);
+    },
+    [activeAgent?.id, isProcessing],
+  );
+
   const handleNewChat = useCallback(() => {
     if (isProcessing) return;
     setMessages([]);
@@ -129,9 +147,9 @@ export function AssistantPage() {
   }, []);
 
   const handleMobileAgentChange = useCallback((agent: Agent) => {
-    setActiveAgent(agent);
+    handleAgentChange(agent);
     setIsMobileSidebarOpen(false);
-  }, []);
+  }, [handleAgentChange]);
 
   const handleMobileNewChat = useCallback(() => {
     handleNewChat();
@@ -145,7 +163,7 @@ export function AssistantPage() {
           activeAgentId={activeAgent?.id ?? ""}
           hasMessages={messages.length > 0}
           isProcessing={isProcessing}
-          onAgentChange={setActiveAgent}
+          onAgentChange={handleAgentChange}
           onAgentsLoaded={handleAgentsLoaded}
           onNewChat={handleNewChat}
           onRememberChange={setRemember}
