@@ -54,7 +54,7 @@ export function Composer({
   }
 
   return (
-    <div className="sticky bottom-0 z-10 border-t bg-background/85 px-4 py-4 backdrop-blur-xl">
+    <div className="sticky bottom-0 z-10 border-t bg-background/85 p-3 backdrop-blur-xl sm:p-4">
       <form className="mx-auto w-full max-w-3xl" onSubmit={submit}>
         <div className="relative overflow-hidden rounded-2xl border bg-card shadow-lg shadow-black/[0.03] transition-colors focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
           <Textarea
