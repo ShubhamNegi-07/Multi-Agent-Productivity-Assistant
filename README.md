@@ -41,6 +41,12 @@ validation, planning, and external data access.
 - **FastAPI orchestration API** with typed Pydantic request and response models.
 - **React/Vite Assistant Hub** with responsive navigation, transcript, composer,
   memory toggle, prompt suggestions, and copy actions.
+- **Responsive workspace** for 320px+ mobile screens, 768px+ tablets, and
+  1024px+ desktop layouts.
+- **Mobile navigation drawer** with a hamburger trigger, backdrop, close action,
+  agent selection, new-chat action, and context-memory toggle.
+- **Adaptive chat composition** with mobile-safe spacing, rounded focus states,
+  and quick-prompt cards that move from one to two to three columns.
 - **Tailwind and shadcn-style design system** using a slate/indigo palette.
 - **Conversation history support** with bounded context passed to agents.
 - **Explicit error handling** that surfaces actionable failures instead of
@@ -85,6 +91,32 @@ sequenceDiagram
     API-->>UI: ChatResponse JSON
     UI-->>User: Render transcript card
 ```
+
+The application is split into two independently runnable services:
+
+1. **React/Vite frontend** renders the Assistant Hub, loads the available
+   specialists, manages local conversation state, and sends typed requests to
+   the API. The desktop layout keeps the specialist navigation in a sidebar;
+   screens below the `md` breakpoint use a slide-over drawer so the chat
+   remains usable at 320px and wider.
+2. **FastAPI backend** validates requests with Pydantic, exposes the agent
+   catalog and chat route, bounds conversation context, loads the selected
+   specialist, and translates runtime failures into explicit HTTP errors.
+3. **Specialist agents and tools** pair each domain prompt with deterministic
+   Python tools. Gemini composes the final answer while tools provide
+   calculations, validation, planning, or external data access.
+
+### Runtime flow
+
+1. The frontend requests `GET /api/agents` and selects the first available
+   specialist.
+2. A user message and optional bounded history are sent to `POST /api/chat`.
+3. FastAPI validates the payload and selects the requested specialist.
+4. The agent invokes domain tools as needed and uses Gemini for response
+   composition. Weather tools may call OpenWeatherMap.
+5. The API returns the specialist metadata, response text, and elapsed time.
+6. The frontend renders the response and retains non-error messages for the
+   next request when memory is enabled.
 
 ### API contract
 
@@ -149,6 +181,13 @@ Multi-Agent-Productivity-Assistant/
 
 ## 🛠 Setup
 
+### Prerequisites
+
+- Python 3.10 or newer
+- Node.js 18 or newer and npm
+- A Google Gemini API key
+- An OpenWeatherMap API key for live weather requests
+
 ### 1. Clone the repository
 
 ```powershell
@@ -162,14 +201,17 @@ cd Multi-Agent-Productivity-Assistant
 Copy-Item .env.example .env
 ```
 
-Set the values in `.env`:
+Set the values in the root `.env` file:
 
 ```dotenv
 GEMINI_API_KEY="your_gemini_api_key"
 OPENWEATHER_API_KEY="your_openweathermap_key"
 ```
 
-Never commit `.env`. It is excluded by the root `.gitignore`.
+`GEMINI_API_KEY` powers reasoning for every specialist. `OPENWEATHER_API_KEY`
+is used by the Weather Agent for current conditions and forecasts; the other
+agents do not require it. Never commit `.env`; it is excluded by the root
+`.gitignore`.
 
 ### 3. Install and run the backend
 
@@ -200,6 +242,21 @@ $env:VITE_API_BASE_URL = "http://localhost:8001"
 npm run dev
 ```
 
+Open `http://localhost:5173` in a browser. The frontend and backend should be
+running in separate terminals. If port `8001` is changed, set
+`VITE_API_BASE_URL` before starting the frontend.
+
+### Responsive behavior
+
+| Viewport | Layout |
+| --- | --- |
+| 320px–767px | Full-width chat, compact header, hamburger-triggered navigation drawer, one-column prompt cards, and compact composer padding |
+| 768px–1023px | Desktop-style specialist sidebar with two-column prompt cards where space allows |
+| 1024px+ | Full desktop sidebar, three-column prompt cards, and expanded workspace spacing |
+
+The page uses a minimum body width of 320px, bounded content widths, mobile
+safe horizontal padding, and independently scrollable chat/sidebar regions.
+
 ## 🧪 Testing
 
 Run the backend regression suite:
@@ -220,6 +277,10 @@ Build and type-check the frontend:
 cd frontend
 npm run build
 ```
+
+The frontend build runs TypeScript compilation followed by a production Vite
+bundle and is the quickest verification after UI or responsive-layout
+changes.
 
 Smoke-test the running services:
 
