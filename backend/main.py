@@ -2,15 +2,25 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
+from collections import deque
+import logging
+from threading import Lock
 from typing import Annotated, Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 MEMORY_TURNS = 6
 MEMORY_CHARS = 700
+MAX_RESPONSE_CHARS = 4_000
+RATE_LIMIT_WINDOW_SECONDS = 60
+RATE_LIMIT_REQUESTS = 30
 AgentRunner = Callable[[str], str]
+logger = logging.getLogger(__name__)
+rate_limit_lock = Lock()
+rate_limit_buckets: dict[str, deque[float]] = {}
 
 AGENTS = {
     "weather": {"id": "weather", "name": "Weather Agent", "icon": "🌤️", "tagline": "Watching the skies so your plans don't get rained on."},
@@ -62,7 +72,7 @@ class AgentSummary(BaseModel):
 
 class ChatResponse(BaseModel):
     agent: AgentSummary
-    message: str
+    message: str = Field(max_length=MAX_RESPONSE_CHARS)
     elapsed_ms: int
 
 
@@ -104,6 +114,29 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def limit_chat_requests(request: Request, call_next):
+    if request.url.path == "/api/chat":
+        client_id = request.client.host if request.client else "unknown"
+        now = time.monotonic()
+        cutoff = now - RATE_LIMIT_WINDOW_SECONDS
+
+        with rate_limit_lock:
+            bucket = rate_limit_buckets.setdefault(client_id, deque())
+            while bucket and bucket[0] <= cutoff:
+                bucket.popleft()
+            if len(bucket) >= RATE_LIMIT_REQUESTS:
+                retry_after = max(1, round(bucket[0] + RATE_LIMIT_WINDOW_SECONDS - now))
+                return JSONResponse(
+                    status_code=429,
+                    content={"detail": "Too many assistant requests. Please try again later."},
+                    headers={"Retry-After": str(retry_after)},
+                )
+            bucket.append(now)
+
+    return await call_next(request)
+
+
 @app.get("/api/agents", response_model=list[AgentSummary])
 def list_agents() -> list[AgentSummary]:
     return [AgentSummary(**agent) for agent in AGENTS.values()]
@@ -114,16 +147,29 @@ def chat(request: ChatRequest) -> ChatResponse:
     agent = AGENTS.get(request.agent_id)
     if agent is None:
         raise HTTPException(status_code=404, detail=f"Unknown agent: {request.agent_id}")
-    runner = load_agent(request.agent_id)
     started = time.perf_counter()
     try:
+        runner = load_agent(request.agent_id)
         response = runner(build_prompt(request))
     except EnvironmentError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
+        logger.warning("Agent configuration unavailable: %s", exc)
+        raise HTTPException(
+            status_code=503,
+            detail="The assistant is temporarily unavailable. Please try again later.",
+        ) from exc
     except RuntimeError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
+        logger.warning("Agent provider request failed: %s", exc)
+        raise HTTPException(
+            status_code=503,
+            detail="The assistant could not complete that request. Please try again.",
+        ) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail="Agent request failed.") from exc
+        logger.exception("Unexpected agent request failure")
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected assistant error occurred. Please try again.",
+        ) from exc
+    response = response[:MAX_RESPONSE_CHARS]
     return ChatResponse(
         agent=AgentSummary(**agent),
         message=response,
