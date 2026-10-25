@@ -26,7 +26,7 @@ export function EmptyState({ agent, onPromptSelect }: EmptyStateProps) {
       <p className="mt-3 max-w-lg text-sm leading-6 text-muted-foreground">
         {agent.tagline}
       </p>
-      <div className="mt-8 grid w-full gap-3 sm:grid-cols-3">
+      <div className="mt-8 grid w-full grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
         {prompts.map((prompt) => (
           <button
             className="rounded-xl border bg-card p-4 text-left text-sm shadow-sm transition-colors hover:border-primary/40 hover:bg-primary/[0.03]"
