@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Bot, Loader2 } from "lucide-react";
+import { Bot, Loader2, Menu, X } from "lucide-react";
 
 import {
   ApiError,
@@ -28,7 +28,8 @@ export function AssistantPage() {
   const [draft, setDraft] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [remember, setRemember] = useState(true);
-  const requestController = useRef<AbortController | null>(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const requestController = useRef<AbortController | null>(null);
 
   useEffect(() => {
     return () => requestController.current?.abort();
@@ -126,6 +127,16 @@ export function AssistantPage() {
   const handlePromptSelect = useCallback((prompt: string) => {
     setDraft(prompt);
   }, []);
+
+  const handleMobileAgentChange = useCallback((agent: Agent) => {
+    setActiveAgent(agent);
+    setIsMobileSidebarOpen(false);
+  }, []);
+
+  const handleMobileNewChat = useCallback(() => {
+    handleNewChat();
+    setIsMobileSidebarOpen(false);
+  }, [handleNewChat]);
 
   return (
     <div className="flex h-dvh overflow-hidden bg-background">
@@ -141,10 +152,49 @@ export function AssistantPage() {
           remember={remember}
         />
       </div>
-
-      <main className="flex min-w-0 flex-1 flex-col">
-        <header className="flex min-h-16 items-center gap-3 border-b px-4 sm:px-6">
-          <Avatar className="size-9 rounded-xl">
+
+      {isMobileSidebarOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <button
+            aria-label="Close navigation"
+            className="absolute inset-0 bg-slate-950/40"
+            onClick={() => setIsMobileSidebarOpen(false)}
+            type="button"
+          />
+          <div className="relative h-full w-[min(18rem,85vw)] shadow-xl">
+            <AppSidebar
+              activeAgentId={activeAgent?.id ?? ""}
+              hasMessages={messages.length > 0}
+              isProcessing={isProcessing}
+              onAgentChange={handleMobileAgentChange}
+              onAgentsLoaded={handleAgentsLoaded}
+              onNewChat={handleMobileNewChat}
+              onRememberChange={setRemember}
+              remember={remember}
+            />
+            <button
+              aria-label="Close navigation"
+              className="absolute right-3 top-4 inline-flex size-9 items-center justify-center rounded-lg border bg-card text-muted-foreground shadow-sm"
+              onClick={() => setIsMobileSidebarOpen(false)}
+              type="button"
+            >
+              <X className="size-4" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <main className="flex min-w-0 flex-1 flex-col">
+        <header className="flex min-h-16 items-center gap-3 border-b px-3 py-4 sm:px-6">
+          <button
+            aria-label="Open navigation"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border text-muted-foreground md:hidden"
+            onClick={() => setIsMobileSidebarOpen(true)}
+            type="button"
+          >
+            <Menu className="size-4" aria-hidden="true" />
+          </button>
+          <Avatar className="size-9 rounded-xl">
             <AvatarFallback className="rounded-xl bg-primary/10 text-base">
               {activeAgent ? activeAgent.icon : <Bot className="size-4" />}
             </AvatarFallback>
