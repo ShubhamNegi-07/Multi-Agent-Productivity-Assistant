@@ -6,14 +6,23 @@ Decorated with @tool so LangChain agents can invoke it automatically.
 """
 
 import os
+from pathlib import Path
+
 import requests
-from langchain.tools import tool
 from dotenv import load_dotenv
+from langchain.tools import tool
 
-load_dotenv()
-
-WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 BASE_URL = "https://api.openweathermap.org/data/2.5"
+WEATHER_TIMEOUT_SECONDS = 10
+
+
+def _weather_api_key() -> str | None:
+    return os.getenv("OPENWEATHER_API_KEY")
+
+
+def _weather_network_error() -> str:
+    return "Weather data is temporarily unavailable. Please try again later."
 
 
 @tool
@@ -25,16 +34,21 @@ def get_current_weather(city: str) -> str:
     Args:
         city: Name of the city (e.g., 'Dehradun', 'Mumbai').
     """
-    if not WEATHER_API_KEY:
+    api_key = _weather_api_key()
+    if not api_key:
         return "âŒ OPENWEATHER_API_KEY is missing in .env file."
 
     try:
-        url = f"{BASE_URL}/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
-        response = requests.get(url, timeout=10)
-        data = response.json()
+        response = requests.get(
+            f"{BASE_URL}/weather",
+            params={"q": city, "appid": api_key, "units": "metric"},
+            timeout=WEATHER_TIMEOUT_SECONDS,
+        )
 
         if response.status_code != 200:
-            return f"âŒ Could not fetch weather for '{city}'. Reason: {data.get('message', 'Unknown error')}."
+            return "Weather data could not be found for that location."
+
+        data = response.json()
 
         weather_desc  = data["weather"][0]["description"].capitalize()
         temp          = data["main"]["temp"]
@@ -53,10 +67,10 @@ def get_current_weather(city: str) -> str:
             f"ðŸŒˆ  Condition    : {weather_desc}"
         )
 
-    except requests.exceptions.ConnectionError:
-        return "âŒ Network error. Please check your internet connection."
-    except Exception as exc:
-        return f"âŒ Unexpected error: {str(exc)}"
+    except requests.exceptions.RequestException:
+        return _weather_network_error()
+    except (AttributeError, KeyError, IndexError, TypeError, ValueError):
+        return "Weather data was incomplete. Please try again later."
 
 
 @tool
@@ -67,16 +81,26 @@ def get_weather_forecast(city: str) -> str:
     Args:
         city: Name of the city (e.g., 'Delhi', 'Mumbai').
     """
-    if not WEATHER_API_KEY:
+    api_key = _weather_api_key()
+    if not api_key:
         return "âŒ OPENWEATHER_API_KEY is missing in .env file."
 
     try:
-        url = f"{BASE_URL}/forecast?q={city}&appid={WEATHER_API_KEY}&units=metric&cnt=24"
-        response = requests.get(url, timeout=10)
-        data = response.json()
+        response = requests.get(
+            f"{BASE_URL}/forecast",
+            params={
+                "q": city,
+                "appid": api_key,
+                "units": "metric",
+                "cnt": 24,
+            },
+            timeout=WEATHER_TIMEOUT_SECONDS,
+        )
 
         if response.status_code != 200:
-            return f"âŒ Could not fetch forecast for '{city}'. Reason: {data.get('message', 'Unknown error')}."
+            return "Forecast data could not be found for that location."
+
+        data = response.json()
 
         lines = [f"ðŸ“…  **3-Day Forecast for {city.title()}**\n{'â”'*34}"]
         for item in data["list"][::8][:3]:
@@ -87,5 +111,7 @@ def get_weather_forecast(city: str) -> str:
 
         return "\n".join(lines)
 
-    except Exception as exc:
-        return f"âŒ Error fetching forecast: {str(exc)}"
+    except requests.exceptions.RequestException:
+        return _weather_network_error()
+    except (AttributeError, KeyError, IndexError, TypeError, ValueError):
+        return "Forecast data was incomplete. Please try again later."
