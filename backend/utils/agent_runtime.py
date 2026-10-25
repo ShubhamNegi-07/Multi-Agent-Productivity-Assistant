@@ -8,11 +8,11 @@ parser. Centralising it means a change in Gemini's response shape is fixed
 once rather than six times, and it gives a single place to turn the SDK's
 opaque failures into something the chat thread can actually show a user.
 
-Error contract â€” app.py renders a failed turn as an error bubble and relies
-on exceptions to do it, so nothing here swallows a failure and returns a
-string pretending to be an answer:
+Error contract â€” the FastAPI boundary renders a failed turn as an error
+response and relies on exceptions to do it, so nothing here swallows a
+failure and returns a string pretending to be an answer:
 
-  * EnvironmentError propagates untouched (app.py has a dedicated branch for
+  * EnvironmentError propagates untouched (the API has a dedicated branch for
     configuration problems like a missing API key).
   * Everything else is re-raised as RuntimeError carrying a readable,
     non-technical message.
@@ -143,7 +143,7 @@ def run_agent(build_agent: Callable[[], Any], query: str, label: str) -> str:
     try:
         agent = build_agent()
     except EnvironmentError:
-        # Missing/blank API key â€” app.py reports configuration errors itself.
+        # Missing/blank API key â€” the API reports configuration errors itself.
         raise
     except Exception as exc:
         raise RuntimeError(
