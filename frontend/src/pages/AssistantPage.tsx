@@ -157,15 +157,6 @@ export function AssistantPage() {
               {activeAgent?.tagline ?? "Loading your specialist workspace…"}
             </p>
           </div>
-          <span className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-            <span
-              className={[
-                "size-2 rounded-full",
-                isProcessing ? "animate-pulse bg-primary" : "bg-emerald-500",
-              ].join(" ")}
-            />
-            {isProcessing ? "Thinking" : "Ready"}
-          </span>
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto">

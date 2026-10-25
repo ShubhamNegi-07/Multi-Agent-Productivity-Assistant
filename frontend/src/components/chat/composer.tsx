@@ -56,10 +56,10 @@ export function Composer({
   return (
     <div className="sticky bottom-0 z-10 border-t bg-background/85 px-4 py-4 backdrop-blur-xl">
       <form className="mx-auto w-full max-w-3xl" onSubmit={submit}>
-        <div className="relative rounded-2xl border bg-card shadow-lg shadow-black/[0.03] transition-colors focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
+        <div className="relative overflow-hidden rounded-2xl border bg-card shadow-lg shadow-black/[0.03] transition-colors focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
           <Textarea
             aria-label="Message assistant"
-            className="min-h-14 resize-none border-0 bg-transparent px-4 py-4 pr-14 shadow-none focus-visible:ring-0"
+            className="min-h-14 resize-none rounded-2xl border-0 bg-transparent px-4 py-4 pr-14 shadow-none focus:outline-none focus:ring-0 focus-visible:ring-0"
             disabled={disabled}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
