@@ -1,6 +1,9 @@
 .env
+.env.*
+!.env.example
 .venv/
 venv/
+.devcontainer/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -10,3 +13,6 @@ build/
 .next/
 coverage/
 *.tsbuildinfo
+*.log
+.DS_Store
+Thumbs.db
