@@ -23,14 +23,14 @@ rate_limit_lock = Lock()
 rate_limit_buckets: dict[str, deque[float]] = {}
 
 AGENTS = {
-    "weather": {"id": "weather", "name": "Weather Agent", "icon": "🌤️", "tagline": "Watching the skies so your plans don't get rained on."},
-    "travel": {"id": "travel", "name": "Travel Agent", "icon": "✈️", "tagline": "Here to turn 'someday' into an itinerary."},
-    "finance": {"id": "finance", "name": "Finance Agent", "icon": "💰", "tagline": "On your side, one smart rupee at a time."},
-    "productivity": {"id": "productivity", "name": "Productivity Agent", "icon": "📋", "tagline": "Turns your chaos into a clean checklist."},
-    "career": {"id": "career", "name": "Career Agent", "icon": "💼", "tagline": "Sharpening your resume, one bullet at a time."},
-    "health": {"id": "health", "name": "Health Agent", "icon": "🏃", "tagline": "Small daily habits, tracked properly."},
-    "recipe": {"id": "recipe", "name": "Recipe Agent", "icon": "🍳", "tagline": "Scales the recipe so dinner still works."},
-    "study": {"id": "study", "name": "Study Agent", "icon": "📚", "tagline": "Revision timed so it actually sticks."},
+    "weather": {"id": "weather", "name": "Weather Desk", "icon": "cloud-sun", "tagline": "Conditions and forecasts for the day ahead."},
+    "travel": {"id": "travel", "name": "Travel Desk", "icon": "map", "tagline": "Turn a destination into a workable plan."},
+    "finance": {"id": "finance", "name": "Finance Desk", "icon": "calculator", "tagline": "Clear numbers for the decisions in front of you."},
+    "productivity": {"id": "productivity", "name": "Planning Desk", "icon": "notebook", "tagline": "Make the next steps visible and manageable."},
+    "career": {"id": "career", "name": "Career Desk", "icon": "briefcase", "tagline": "Sharper applications, conversations, and next moves."},
+    "health": {"id": "health", "name": "Health Desk", "icon": "dumbbell", "tagline": ""},
+    "recipe": {"id": "recipe", "name": "Kitchen Desk", "icon": "chef", "tagline": "Reliable quantities, timings, and shopping lists."},
+    "study": {"id": "study", "name": "Study Desk", "icon": "graduation", "tagline": "A focused route from notes to recall."},
 }
 
 
@@ -104,7 +104,7 @@ def build_prompt(request: ChatRequest) -> str:
     return f"Conversation context:\n{context}\n\nUser: {request.message}"
 
 
-app = FastAPI(title="Multi-Agent Productivity Assistant API")
+app = FastAPI(title="OmniDesk API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://localhost:5173"],
