@@ -9,7 +9,7 @@
 ╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝
 ```
 
-# Multi-Agent Productivity Assistant
+# OmniDesk
 
 **A modern, decoupled SaaS workspace powered by FastAPI, LangChain, Google Gemini, and React (shadcn/ui + Tailwind CSS).**
 
@@ -29,7 +29,7 @@
 
 ## ✨ Overview
 
-Multi-Agent Productivity Assistant is a decoupled full-stack workspace that
+OmniDesk is a decoupled full-stack workspace that
 routes user prompts to focused AI specialists. Each specialist combines a
 domain prompt with a small, testable toolset. Gemini handles reasoning and
 response composition; deterministic Python tools handle calculations,
@@ -39,7 +39,7 @@ validation, planning, and external data access.
 
 - **Eight specialist agents** with isolated prompts and domain tools.
 - **FastAPI orchestration API** with typed Pydantic request and response models.
-- **React/Vite Assistant Hub** with responsive navigation, transcript, composer,
+- **React/Vite OmniDesk** with responsive navigation, transcript, composer,
   memory toggle, prompt suggestions, and copy actions.
 - **Responsive workspace** for 320px+ mobile screens, 768px+ tablets, and
   1024px+ desktop layouts.
@@ -55,16 +55,16 @@ validation, planning, and external data access.
 
 ## 🧭 Specialist matrix
 
-| Agent | Domain | Core tools |
+| Desk | Domain | Core tools |
 | --- | --- | --- |
-| 🌤️ Weather | Live conditions and forecasts | `get_current_weather`, `get_weather_forecast` |
-| ✈️ Travel | Trip planning | `estimate_trip_budget`, `suggest_transport`, `travel_checklist`, `best_time_to_visit` |
-| 💰 Finance | Financial calculations | `calculate_emi`, `simple_interest`, `compound_interest`, `monthly_budget_split` |
-| 📋 Productivity | Work and planning | `create_todo_list`, `generate_meeting_agenda`, `draft_email`, `study_plan` |
-| 💼 Career | Career development | `skill_gap_analysis`, `draft_outreach`, `resume_checklist` |
-| 🏃 Health | General wellness | `bmi_report`, `calorie_targets`, `workout_split`, `hydration_and_sleep` |
-| 🍳 Recipe | Cooking assistance | `scale_recipe`, `convert_kitchen_measure`, `cooking_times`, `shopping_list` |
-| 📚 Study | Revision and exams | `grade_needed`, `pomodoro_plan`, `flashcards_from_notes`, `exam_revision_plan` |
+| Weather Desk | Live conditions and forecasts | `get_current_weather`, `get_weather_forecast` |
+| Travel Desk | Trip planning | `estimate_trip_budget`, `suggest_transport`, `travel_checklist`, `best_time_to_visit` |
+| Finance Desk | Financial calculations | `calculate_emi`, `simple_interest`, `compound_interest`, `monthly_budget_split` |
+| Planning Desk | Work and planning | `create_todo_list`, `generate_meeting_agenda`, `draft_email`, `study_plan` |
+| Career Desk | Career development | `skill_gap_analysis`, `draft_outreach`, `resume_checklist` |
+| Health Desk | General wellness | `bmi_report`, `calorie_targets`, `workout_split`, `hydration_and_sleep` |
+| Kitchen Desk | Cooking assistance | `scale_recipe`, `convert_kitchen_measure`, `cooking_times`, `shopping_list` |
+| Study Desk | Revision and exams | `grade_needed`, `pomodoro_plan`, `flashcards_from_notes`, `exam_revision_plan` |
 
 > Health and finance responses are general informational guidance, not medical
 > diagnosis or regulated financial advice.
@@ -74,7 +74,7 @@ validation, planning, and external data access.
 ```mermaid
 sequenceDiagram
     actor User
-    participant UI as React/Vite Assistant Hub
+    participant UI as React/Vite OmniDesk
     participant API as FastAPI :8001
     participant Agent as Selected LangChain Agent
     participant Tool as Domain Tools
@@ -94,7 +94,7 @@ sequenceDiagram
 
 The application is split into two independently runnable services:
 
-1. **React/Vite frontend** renders the Assistant Hub, loads the available
+1. **React/Vite frontend** renders OmniDesk, loads the available
    specialists, manages local conversation state, and sends typed requests to
    the API. The desktop layout keeps the specialist navigation in a sidebar;
    screens below the `md` breakpoint use a slide-over drawer so the chat
@@ -179,6 +179,14 @@ Multi-Agent-Productivity-Assistant/
 └── README.md
 ```
 
+## ✦ Design engineering skills
+
+This repository includes Emil Kowalski's project-local design skills under
+`.github/skills/emilkowalski-skills/`. Use `/emil-design-eng` for interface
+craft and interaction decisions, `/animate` when implementing purposeful
+motion, and `/review-animations` when auditing existing motion. The bundle
+includes the original skill references and metadata for progressive loading.
+
 ## 🛠 Setup
 
 ### Prerequisites
@@ -234,8 +242,10 @@ npm install
 npm run dev
 ```
 
-The Vite application is served at `http://localhost:5173`. The API client
-defaults to `http://localhost:8001`; override it when needed:
+The Vite application is served at `http://localhost:5173`. During development,
+API calls use the same-origin `/api` path and Vite proxies them to
+`http://127.0.0.1:8001`. Override the API base URL only when the backend is
+hosted elsewhere:
 
 ```powershell
 $env:VITE_API_BASE_URL = "http://localhost:8001"
