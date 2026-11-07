@@ -16,7 +16,7 @@ export function Button({
 }: ButtonProps) {
   const variants: Record<ButtonVariant, string> = {
     default: "bg-primary text-primary-foreground hover:bg-primary/90",
-    outline: "border bg-background hover:bg-muted",
+    outline: "border-border bg-transparent hover:border-primary/50 hover:bg-muted",
     ghost: "hover:bg-muted",
   };
   const sizes: Record<ButtonSize, string> = {
@@ -25,7 +25,7 @@ export function Button({
   };
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center rounded-lg text-sm font-medium transition-[background-color,border-color,color,opacity] duration-150 ease-out disabled:pointer-events-none disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     />
   );
